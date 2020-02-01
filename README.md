@@ -42,6 +42,6 @@ If any of your tests fail, the RunARMTTKTests task will also fail. To ensure tha
 
 Once you do this, Azure DevOps will show the results of your tests in the build.
 
-![Test Results](https://github.com/sam-cogan/arm-ttk-extension/blob/master/images/TestResults.png)
+![Test Results](https://github.com/sam-cogan/arm-ttk-extension/blob/master/images/TestResults.png?raw=true)
 
     
