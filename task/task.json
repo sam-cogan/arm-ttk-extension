@@ -1,0 +1,43 @@
+{
+    "id": "2f159376-316b-4652-a49c-392f9d534113",
+    "name": "RunARMTTKTests",
+    "friendlyName": "Run Azure RM TTK Tests",
+    "description": "Run Azure Resource Manager Template Test Kit Tests against ARM Templates",
+    "helpMarkDown": "[More Information](https://github.com/sam-cogan/arm-ttk-extension/blob/master/README.md)",
+    "categories": "Test",
+    "visibility": ["Build", "Release"],
+    "runsOn": ["Agent", "DeploymentGroup"],
+    "author": "Sam Cogan",
+    "version": {
+      "Major": 1,
+      "Minor": 0,
+      "Patch": 2
+    },
+    "instanceNameFormat": "Run Azure RM TTK Tests",
+
+    "inputs": [{
+        "name": "templatelocation",
+        "type": "string",
+        "label": "Template Folder or Template",
+        "required": true,
+        "helpMarkDown": "Folder container templates, or individual template to test",
+        "defaultValue": "$(System.DefaultWorkingDirectory)\\*"
+      },
+      {
+        "name": "resultLocation",
+        "type": "string",
+        "label": "Results Location",
+        "required": true,
+        "helpMarkDown": "Location to output test results",
+        "defaultValue": "$(System.DefaultWorkingDirectory)\\ARM-TTK.XML"
+      }
+
+    ],
+    "execution": {
+      "PowerShell3": {
+        "target": "powershell.ps1",
+        "platforms": ["windows"],
+        "workingDirectory": "$(currentDirectory)"
+      }
+    }
+  }
