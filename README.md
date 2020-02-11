@@ -1,14 +1,18 @@
 # arm-ttk-extension
 An Azure DevOps Extension for running Azure Resource Manager Template Tool Kit tests as part of your build or release pipeline.
 
-## ARM TTK
-The ARM Template Tool Kit is a new static code analyser for ARM templates created by Microsoft. It's an open-source PowerShell library that you can use to validate your templates against a series of test cases. These test cases are generic and designed to validate that your templates are following best practice, a little like the PowerShell PSScriptAnalyzer tool. The ARM TTK tests for:
+Currently this extension can only be used on Windows build agents.
 
-Templates are using a valid schema
-Locations are not hardcoded
-Outputs don't contain secrets
-ID's are derived from resource ID's
-Templates do not contain blanks
+## ARM TTK
+The ARM Template Tool Kit is a new static code analyser for ARM templates created by Microsoft. It's an open-source PowerShell library that you can use to validate your templates against a series of test cases. These test cases are generic and designed to validate that your templates are following best practice, a little like the PowerShell PSScriptAnalyzer tool. The ARM TTK tests for things like:
+
+- Templates are using a valid schema
+- Locations are not hardcoded
+- Outputs don't contain secrets
+- ID's are derived from resource ID's
+- Templates do not contain blanks
+
+For full details of the ARM TTK visit it's [Git repository](https://github.com/Azure/azure-quickstart-templates/tree/master/test/arm-ttk)
 
 ## ARM TTK Extension
 This extension provides an easy way to run the ARM TTK tests against your templates within Azure DevOps. You could run these tests when you update your template repository, create a pull request against your template repositor or when you are looking to run your templtes to create infrastructure.

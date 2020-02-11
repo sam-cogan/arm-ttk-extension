@@ -1,40 +1,43 @@
 {
 	"manifestVersion": 1,
 	"id": "ARMTTKExtension",
-	"version": "1.0.3",
+	"version": "1.0.10",
 	"name": "Run ARM TTK Tests",
 	"description": "Run Azure Resource Manager Template Test Kit tests as part of your build or release process",
 	"publisher": "Sam-Cogan",
 	"repository": {
-	    "type": "git",
-      	    "url": "https://github.com/sam-cogan/arm-ttk-extension"
+		"type": "git",
+		"url": "https://github.com/sam-cogan/arm-ttk-extension"
 	},
 	"content": {
-	    "details": {
-		"path": "README.md"
+		"details": {
+			"path": "README.md"
 		},
 		"license": {
-		"path": "LICENSE"
+			"path": "LICENSE"
 		}
 	},
-	"tags":[
-	    "Azure Pipelines",
+	"tags": [
+		"Azure Pipelines",
 		"Azure",
 		"Azure Resource Manager",
-	    "Tests"
+		"Tests"
 	],
 	"targets": [
 		{
 			"id": "Microsoft.VisualStudio.Services"
-			}
-		],
+		}
+	],
 	"icons": {
 		"default": "icon.png"
-	 },
-	 "categories": [
-               "Azure Pipelines"
+	},
+	"galleryFlags": [
+		"Public"
 	],
 
+	 "categories": [
+		"Azure Pipelines"
+	],
 	"contributions": [
 		{
 			"id": "RunARMTTKTests",
@@ -49,17 +52,15 @@
 	],
 	"links": {
 		"getstarted": {
-		  "uri": "https://github.com/sam-cogan/arm-ttk-extension/blob/master/README.md"
+			"uri": "https://github.com/sam-cogan/arm-ttk-extension/blob/master/README.md"
 		},
 		"support": {
-		  "uri": "https://github.com/sam-cogan/arm-ttk-extension/issues"
+			"uri": "https://github.com/sam-cogan/arm-ttk-extension/issues"
 		}
-	  },
-	"files":[
+	},
+	"files": [
 		{
-			"path": "task"			
+			"path": "task"
 		}
 	]
 }
-
-
