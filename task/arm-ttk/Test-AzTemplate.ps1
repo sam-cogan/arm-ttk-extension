@@ -412,7 +412,6 @@ Each test script has access to a set of well-known variables:
             # If a file list was provided,
             if ($PSBoundParameters.File) {
                 $FolderFiles = @(foreach ($ff in $FolderFiles) { # filter the folder files. 
-                    $ff.name  | Add-Content -Path c:\temp\debug.txt
                     $matched = @(foreach ($_ in $file) {
                         $ff.Name -like $_ # If file the name matched any of valid patterns.
                     })
