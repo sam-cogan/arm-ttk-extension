@@ -63,8 +63,8 @@ Function Export-NUnitXml {
             Default { $TestResult = 'Failure'; $TestSuccess = 'False' }
         }
 
-
-        $fileName = Split-Path $testFile  -leaf
+        $directoryName = Split-Path (Split-Path $testFile -Parent) -Leaf
+        $fileName = Split-Path $testFile -Leaf
 
         # generate body of XML
         $Header = @"
@@ -83,7 +83,7 @@ Function Export-NUnitXml {
 "@
 
         $testHeader = @"
-    <test-suite type="TestFixture" name="$fileName" executed="True" result="$TestResult" success="$TestSuccess" time="0.0" asserts="0" description="ARMTTK tests for $fileName">
+    <test-suite type="TestFixture" name="$directoryName\$fileName" executed="True" result="$TestResult" success="$TestSuccess" time="0.0" asserts="0" description="ARMTTK tests for $fileName">
     <results>`n
 "@
 
@@ -95,7 +95,7 @@ Function Export-NUnitXml {
 
             if ($result.Passed) {
                 $TestCase = @"
-    <test-case description="$($result.name) in template file $fileName" name="$($result.name) - $fileName" time="$($result.timespan.toString())" asserts="0" success="True" result="Success" executed="True">
+    <test-case description="$($result.name) in template file $directoryName\$fileName" name="$($result.name) - $fileName" time="$($result.timespan.toString())" asserts="0" success="True" result="Success" executed="True">
     </test-case>`n
 "@
             }
@@ -131,12 +131,7 @@ Function Export-NUnitXml {
             Throw "There was an problem when attempting to cast the output to XML : $($_.Exception.Message)"
         }
 
-        $NunitXml | Out-File -FilePath "$Path\$($(get-item $testFile).basename)-armttk.xml" -Encoding utf8 -Force
-
+        $hash = Get-FileHash -Path $testFile -Algorithm MD5
+        $NunitXml | Out-File -FilePath "$Path\$($(get-item $testFile).basename)-$($hash.Hash)-armttk.xml" -Encoding utf8 -Force
     }
-
-
-
-
 }
-
