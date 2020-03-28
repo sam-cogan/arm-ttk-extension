@@ -31,12 +31,7 @@ jobs:
       with:
         # GitHub Token to create and delete refs (GITHUB_TOKEN)
         token: ${{secrets.deploy_key}}
-    - name: Commit tagger
-      uses: tvdias/github-tagger@v0.0.1
-      with:
-        repo-token: ${{secrets.deploy_key}}
-        # Tag text
-        tag: v1.0.${{ steps.buildnumber.outputs.build_number }}
+
     - name: Copy file
       run: |
         rm -r task/arm-ttk/testcases/
@@ -61,7 +56,7 @@ jobs:
     - name: GH Release
       uses: softprops/action-gh-release@master
       with:
-        name: ARM TTK Extension 1.0.{{ steps.buildnumber.outputs.build_number }}
+        name: ARM TTK Extension v1.0.${{ steps.buildnumber.outputs.build_number }}
         files: Sam-Cogan.ARMTTKExtension-1.0.${{ steps.buildnumber.outputs.build_number }}.vsix
         tag_name: v1.0.${{ steps.buildnumber.outputs.build_number }}
       env:
