@@ -59,7 +59,7 @@ jobs:
         path: Sam-Cogan.ARMTTKExtension-1.0.${{ steps.buildnumber.outputs.build_number }}.vsix
         
     - name: GH Release
-      uses: softprops/action-gh-release@v0.1.5
+      uses: softprops/action-gh-release@master
       with:
         name: ARM TTK Extension 1.0.{{ steps.buildnumber.outputs.build_number }}
         files: Sam-Cogan.ARMTTKExtension-1.0.${{ steps.buildnumber.outputs.build_number }}.vsix
