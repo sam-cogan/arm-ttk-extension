@@ -50,7 +50,7 @@ jobs:
       uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
-        name: files
+        name: extension
         path: Sam-Cogan.ARMTTKExtension-1.0.${{ steps.buildnumber.outputs.build_number }}.vsix
         
     - name: GH Release
