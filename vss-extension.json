@@ -1,7 +1,7 @@
 {
 	"manifestVersion": 1,
 	"id": "ARMTTKExtension",
-	"version": "1.0.10",
+	"version": "1.0.$buildnumber$",
 	"name": "Run ARM TTK Tests",
 	"description": "Run Azure Resource Manager Template Test Kit tests as part of your build or release process",
 	"publisher": "Sam-Cogan",
