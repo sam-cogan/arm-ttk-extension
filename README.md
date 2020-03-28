@@ -1,4 +1,7 @@
 # arm-ttk-extension
+
+![CI](https://github.com/sam-cogan/arm-ttk-extension/workflows/CI/badge.svg)
+
 An Azure DevOps Extension for running Azure Resource Manager Template Tool Kit tests as part of your build or release pipeline.
 
 Currently this extension can only be used on Windows build agents.
