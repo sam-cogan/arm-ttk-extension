@@ -65,5 +65,5 @@ jobs:
         name: extension
     - name: publish-extension
       run: |
-        npx tfx extension publish --vsix Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}.vsix --token ${{marketplace_pat}}
+        npx tfx extension publish --vsix Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}.vsix --token ${{secrets.marketplace_pat}}
         
