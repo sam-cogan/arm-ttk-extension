@@ -7,8 +7,6 @@ name: CI
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -32,7 +30,13 @@ jobs:
       uses: einaregilsson/build-number@v2
       with:
         # GitHub Token to create and delete refs (GITHUB_TOKEN)
-        token: ${{secrets.deploy_key}}   
+        token: ${{secrets.deploy_key}}
+    - name: Commit tagger
+      uses: tvdias/github-tagger@v0.0.1
+      with:
+        repo-token: ${{secrets.deploy_key}}
+        # Tag text
+        tag: v1.0.${{ steps.buildnumber.outputs.build_number }}
     - name: Copy file
       run: |
         rm -r task/arm-ttk/testcases/
@@ -59,6 +63,6 @@ jobs:
       with:
         name: ARM TTK Extension 1.0.{{ steps.buildnumber.outputs.build_number }}
         files: Sam-Cogan.ARMTTKExtension-1.0.${{ steps.buildnumber.outputs.build_number }}.vsix
-        tag_name: 1.0.${{ steps.buildnumber.outputs.build_number }}
+        tag_name: v1.0.${{ steps.buildnumber.outputs.build_number }}
       env:
         GITHUB_TOKEN: ${{secrets.deploy_key}}
