@@ -27,10 +27,23 @@ jobs:
         # Repository name with owner. For example, actions/checkout
         repository: Azure/arm-ttk
         path: ttk_files
+    - name: Build Number Generator
+      id: buildnumber
+      uses: einaregilsson/build-number@v2
+      with:
+        # GitHub Token to create and delete refs (GITHUB_TOKEN)
+        token: ${{secrets.deploy_key}}   
     - name: Copy file
       run: |
         rm -r task/arm-ttk/testcases/
-        cp -r ttk_files/arm-ttk/testcases/ task/arm-ttk/testcases/
+        cp -r ttk_files/arm-ttk/testcases/ task/arm-ttk/testcases/       
+    - name: Replace Action
+      uses: datamonsters/replace-action@v2
+      with:
+        # Files, comma-separated. Supposed PLACEHOLDER in them
+        files: vss-extension.json
+        # Comma-separated pairs PLACEHOLDER=value
+        replacements: $buildnumber$=${{ steps.buildnumber.outputs.build_number }}
     - name: create package
       run: |
         npx tfx-cli extension create --manifest-globs vss-extension.json
@@ -39,5 +52,5 @@ jobs:
       with:
         # Artifact name
         name: files
-        path: Sam-Cogan.ARMTTKExtension-1.0.10.vsix
+        path: Sam-Cogan.ARMTTKExtension-1.0.${{ steps.buildnumber.outputs.build_number }}.vsix
       
