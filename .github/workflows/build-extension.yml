@@ -39,5 +39,5 @@ jobs:
       with:
         # Artifact name
         name: files
-        path: *
+        path: tasks
       
