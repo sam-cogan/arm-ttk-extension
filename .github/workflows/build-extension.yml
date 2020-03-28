@@ -39,5 +39,5 @@ jobs:
       with:
         # Artifact name
         name: files
-        path: tasks
+        path: Sam-Cogan.ARMTTKExtension-1.0.10.vsix
       
