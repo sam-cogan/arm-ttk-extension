@@ -38,4 +38,4 @@ jobs:
         # Artifact name
         name: files
         # Directory containing files to upload
-        path: /task
+        path: $GITHUB_WORKSPACE
