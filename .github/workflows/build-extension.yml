@@ -33,11 +33,11 @@ jobs:
         cp -r ttk_files/arm-ttk/testcases/ task/arm-ttk/testcases/
     - name: create package
       run: |
-        npx tfx extension create --manifest-globs vss-extension.json
+        npx tfx-cli extension create --manifest-globs vss-extension.json
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
         name: files
-        path: 
+        path: *
       
