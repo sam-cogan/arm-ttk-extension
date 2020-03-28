@@ -37,7 +37,7 @@ jobs:
         # Files, comma-separated. Supposed PLACEHOLDER in them
         files: vss-extension.json
         # Comma-separated pairs PLACEHOLDER=value
-        replacements: $buildnumber$=${{ GITHUB_RUN_NUMBER }}
+        replacements: $buildnumber$=${{ github.run_number }}
     - name: create package
       run: |
         npx tfx-cli extension create --manifest-globs vss-extension.json
@@ -46,13 +46,13 @@ jobs:
       with:
         # Artifact name
         name: extension
-        path: Sam-Cogan.ARMTTKExtension-1.0.${{ GITHUB_RUN_NUMBER }}.vsix
+        path: Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}.vsix
         
     - name: GH Release
       uses: softprops/action-gh-release@master
       with:
-        name: ARM TTK Extension v1.0.${{ steps.buildnumber.outputs.build_number }}
-        files: Sam-Cogan.ARMTTKExtension-1.0.${{ GITHUB_RUN_NUMBER }}.vsix
-        tag_name: v1.0.${{ GITHUB_RUN_NUMBER }}
+        name: ARM TTK Extension v1.0.${{ github.run_number }}
+        files: Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}.vsix
+        tag_name: v1.0.${{ github.run_number }}
       env:
         GITHUB_TOKEN: ${{secrets.deploy_key}}
