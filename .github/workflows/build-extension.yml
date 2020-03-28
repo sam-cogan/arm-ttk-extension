@@ -26,12 +26,12 @@ jobs:
       with:
         # Repository name with owner. For example, actions/checkout
         repository: Azure/arm-ttk
-        path: $GITHUB_WORKSPACE/ttk_files
+        path: ttk_files
     - name: Copy file
       uses: canastro/copy-action@0.0.2
       with:
-        source: $GITHUB_WORKSPACE/ttk_files/arm-ttk/testcases
-        target: $GITHUB_WORKSPACE/task/arm-ttk/testcases
+        source: ttk_files/arm-ttk/testcases
+        target: task/arm-ttk/testcases
     - name: GitHub Upload Release Artifacts
       uses: Roang-zero1/github-upload-release-artifacts-action@v2.1.0
 
