@@ -36,7 +36,7 @@ if ($item -is [System.IO.DirectoryInfo]){
     $templatelocation = "$($templatelocation.Trimend('\'))\*"
 }
 
-$files = Get-ChildItem $templatelocation -File -Filter "*.json"
+$files = Get-ChildItem $templatelocation -File -Filter "*.json" -Recurse
 $totalFileCount = $files.count
 
 if ($totalFileCount -lt 1) {
