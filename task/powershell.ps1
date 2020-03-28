@@ -15,7 +15,7 @@ function Test-FolderContents {
     )
     
     #Path is always set to folder due to limitation of ARMTTK, filter then picks file(s) or full folder to test
-    $results=Test-AzTemplate -TemplatePath "$folder" -File "$filter" -ErrorAction Continue
+    $results = Test-AzTemplate -TemplatePath $folder -File $filter -ErrorAction Continue
     Export-NUnitXml -TestResults $results -Path $resultlocation
 
     if (!$results) { 
@@ -37,11 +37,11 @@ if ($item -is [System.IO.DirectoryInfo]){
     $templatelocation = "$($templatelocation.Trimend('\'))\*"
 }
 
-$files = Get-ChildItem $templatelocation
+$files = Get-ChildItem $templatelocation -File -Filter "*.json"
 $totalFileCount = $files.count
 
 if ($totalFileCount -lt 1) {
-    Write-Error "No files found in provided path"
+    Write-Error "No json files found in provided path"
 }
 
 $FailedNumber = 0
