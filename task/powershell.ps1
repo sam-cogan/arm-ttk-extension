@@ -1,9 +1,8 @@
 [CmdletBinding()] 
 param() 
  
-$ScriptDir = Split-Path -parent $MyInvocation.MyCommand.Path
-Import-Module "$ScriptDir\arm-ttk\arm-ttk.psd1"
-Import-Module "$ScriptDir\Export-NUnitXml.ps1"
+Import-Module "$PSScriptRoot\arm-ttk\arm-ttk.psd1"
+Import-Module "$PSScriptRoot\Export-NUnitXml.ps1"
 
 $templatelocation = get-VstsInput -Name templatelocation -Require
 $resultlocation = get-VstsInput -Name resultLocation -Require
