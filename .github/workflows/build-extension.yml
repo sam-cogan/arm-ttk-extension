@@ -59,3 +59,6 @@ jobs:
       with:
         name: ARM TTK Extension 1.0.{{ steps.buildnumber.outputs.build_number }}
         files: Sam-Cogan.ARMTTKExtension-1.0.${{ steps.buildnumber.outputs.build_number }}.vsix
+        tag_name: 1.0.${{ steps.buildnumber.outputs.build_number }}
+      env:
+        GITHUB_TOKEN: ${{secrets.deploy_key}}
