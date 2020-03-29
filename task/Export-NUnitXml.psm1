@@ -37,7 +37,6 @@ Function Export-NUnitXml {
     $OS = Get-CimInstance -ClassName Win32_OperatingSystem
     $Platform = $OS.Caption
     $OSVersion = $OS.Version
-    $ClrVersion = $PSVersionTable.CLRVersion.ToString()
     $CurrentCulture = (Get-Culture).Name
     $UICulture = (Get-UICulture).Name
 
