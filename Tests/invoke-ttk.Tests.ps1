@@ -51,7 +51,7 @@ describe "multiple file tests"{
 
     it "generates a results file per template"{
         try{
-        Invoke-TTK -templatelocation "$here\testFiles\multiple-files"  -resultlocation "$testPath"
+        Invoke-TTK -templatelocation "$here\testfiles\multiple-files"  -resultlocation "$testPath"
         }
         catch{
             $_.Exception.Message | should -be "Failures found in test results"
