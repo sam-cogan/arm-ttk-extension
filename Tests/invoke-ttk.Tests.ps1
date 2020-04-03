@@ -75,7 +75,7 @@ describe "folder with period"{
     $testPath = "TestDrive:\"
 
     it "runs tests sucessfully"{
-        Invoke-TTK -templatelocation "$here\testFiles\dot.folder"  -resultlocation $testPath -createResultsFiles $false | should -BeNullOrEmpty
+        Invoke-TTK -templatelocation "$here\testfiles\dot.folder"  -resultlocation $testPath -createResultsFiles $false | should -BeNullOrEmpty
     }
 }
 
