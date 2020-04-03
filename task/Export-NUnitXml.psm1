@@ -34,9 +34,6 @@ Function Export-NUnitXml {
     $MachineName = $env:COMPUTERNAME
     $Cwd = $pwd.Path
     $UserDomain = $env:USERDOMAIN
-    $OS = Get-CimInstance -ClassName Win32_OperatingSystem
-    $Platform = $OS.Caption
-    $OSVersion = $OS.Version
     $CurrentCulture = (Get-Culture).Name
     $UICulture = (Get-UICulture).Name
 
@@ -69,7 +66,7 @@ Function Export-NUnitXml {
         $Header = @"
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
     <test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="ARMTTK" total="$TotalNumber" errors="0" failures="$FailedNumber" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="$FormattedDate" time="$FormattedTime">
-        <environment user="$User" machine-name="$MachineName" cwd="$Cwd" user-domain="$UserDomain" platform="$Platform" nunit-version="2.5.8.0" os-version="$OSVersion" clr-version="$ClrVersion" />
+        <environment user="$User" machine-name="$MachineName" cwd="$Cwd" user-domain="$UserDomain" platform="$Platform" nunit-version="2.5.8.0"  />
         <culture-info current-culture="$CurrentCulture" current-uiculture="$UICulture" />
         <test-suite type="Powershell" name="ARMTTK" executed="True" result="$TestResult" success="$TestSuccess" time="0.0" asserts="0">
         <results>`n
