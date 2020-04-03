@@ -28,6 +28,6 @@ jobs:
 
     # Runs a single command using the runners shell
     - name: Run Pester Tests
-      run: invoke-pester tests/invoke-ttk.Tests.ps1
+      run: invoke-pester Tests/invoke-ttk.Tests.ps1
       shell: pwsh
 
