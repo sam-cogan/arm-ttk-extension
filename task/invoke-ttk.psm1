@@ -3,11 +3,13 @@ function Test-FolderContents {
     param(
         [string]$folder,
         [string]$filter,
-        [boolean]$createResultsFiles
+        [boolean]$createResultsFiles,
+        [string[]]$Test,
+        [string[]]$Skip
     )
     
     #Path is always set to folder due to limitation of ARMTTK, filter then picks file(s) or full folder to test
-    $results = Test-AzTemplate -TemplatePath $folder -File $filter -ErrorAction Continue
+    $results = Test-AzTemplate -TemplatePath $folder -File $filter -Skip $Skip -Test $Test -ErrorAction Continue
     if ($createResultsFiles) {
         Export-NUnitXml -TestResults $results -Path $resultlocation
     }
@@ -34,7 +36,13 @@ Function Invoke-TTK {
         [Parameter(Mandatory, Position = 1)]
         [string]$resultlocation,
         # Whether to create test result files
-        [boolean]$createResultsFiles = $true
+        [boolean]$createResultsFiles = $true,
+        # List of tests to run, if provided will only run these tests
+        [Alias('Tests')]
+        [string[]]$Test,
+        # List of tests to skip
+        [string[]]$Skip
+    
 
     )
 
@@ -64,7 +72,7 @@ Function Invoke-TTK {
     $FailedNumber = 0
     foreach ($file in $files) {
         $fileInfo = [System.IO.FileInfo]$file    
-        $FailedNumber += Test-FolderContents -folder $fileInfo.Directory.FullName -filter $fileInfo.Name -createResultsFiles $createResultsFiles
+        $FailedNumber += Test-FolderContents -folder $fileInfo.Directory.FullName -filter $fileInfo.Name -createResultsFiles $createResultsFiles -Test $Test -Skip $Skip
     }
 
     if ($FailedNumber -gt 0) {

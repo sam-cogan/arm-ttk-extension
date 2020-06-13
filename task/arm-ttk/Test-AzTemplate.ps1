@@ -306,7 +306,26 @@ Each test script has access to a set of well-known variables:
                         $testInput[$_] = $ExecutionContext.SessionState.PSVariable.Get($_).Value
                     }
                     $ValidTestList = if ($test) {
-                        @(Get-TestGroups ($test -replace '-',' ') -includeTest)
+                        $testList = @(Get-TestGroups ($test -replace '[_-]',' ') -includeTest)
+                        if (-not $testList) {
+                            Write-Warning "Test '$test' was not found, all tests will be run"
+                        }
+                        if ($skip) {
+                            foreach ($tl in $testList) {
+                                if ($skip -replace '[_-]', ' ' -notcontains $tl) {
+                                    $tl
+                                }
+                            }
+                        } else {
+                            $testList
+                        }
+                    } elseif ($skip) {
+                        $testList = @(Get-TestGroups -GroupName $groupName -includeTest)
+                        foreach ($tl in $testList) {
+                            if ($skip -replace '[_-]', ' ' -notcontains $tl) {
+                                $tl
+                            }
+                        }
                     } else {
                         $null
                     }
@@ -324,11 +343,11 @@ Each test script has access to a set of well-known variables:
         
         #*Get-TestGroups (expands nested test groups)
         function Get-TestGroups([string[]]$GroupName, [switch]$includeTest) {
-            foreach ($_ in $GroupName) {
-                if ($TestGroup[$_]) {
-                    Get-TestGroups $testGroup[$_] -includeTest:$includeTest
-                } elseif ($IncludeTest -and $TestCase[$_]) {
-                    $_
+            foreach ($gn in $GroupName) {
+                if ($TestGroup[$gn]) {
+                    Get-TestGroups $testGroup[$gn] -includeTest:$includeTest
+                } elseif ($IncludeTest -and $TestCase[$gn]) {
+                    $gn
                 }
             }
         }
