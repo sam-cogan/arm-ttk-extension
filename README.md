@@ -27,11 +27,18 @@ This extension expects two parameters
 1. The path to the files you want to test. This can be a folder (all templates in the folder will be tested), a single file, or a path using a wildcard. You do not need to filter out non-templates, the extension will do this for you.
 2. The path to output the test results format. This extension outputs the results of all tests in nunit 2 format XML files, one file per file tested. These files use the format "<testFileName>-armttk.xml"
 
+You can also provide these optional parameters:
+
+1. A comma seperated list of test to run, if you provide this list then only the tests provided will be run, all other tests will be skipped. Leave blank to run all tests. If the test names are incorrect then all tests will run. The full list of test case names can be foun in the ARMTTK [here](https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate).
+2. A comma seperated list tests to skip, all other tests will be run. Leave blank to run all tests. The full list of test case names can be foun in the ARMTTK [here](https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate).
+
 ```yaml
 - task: RunARMTTKTests@1
   inputs:
     templatelocation: '$(System.DefaultWorkingDirectory)\templates'
     resultLocation: '$(System.DefaultWorkingDirectory)\results'
+    includeTests: 'VM Images Should Use Latest Version,Resources Should Have Location'
+    skipTests: 'VM Images Should Use Latest Version,Resources Should Have Location'
 ```
 
 ### Test Results

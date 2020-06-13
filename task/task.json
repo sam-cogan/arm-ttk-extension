@@ -11,7 +11,7 @@
     "version": {
       "Major": 1,
       "Minor": 0,
-      "Patch": 5
+      "Patch": 6
     },
     "instanceNameFormat": "Run Azure RM TTK Tests",
 
@@ -20,7 +20,7 @@
         "type": "string",
         "label": "Template Folder or Template",
         "required": true,
-        "helpMarkDown": "Folder container templates, or individual template to test",
+        "helpMarkDown": "Folder containing templates, or individual template to test",
         "defaultValue": "$(System.DefaultWorkingDirectory)\\*"
       },
       {
@@ -30,6 +30,20 @@
         "required": true,
         "helpMarkDown": "Location to output test results",
         "defaultValue": "$(System.DefaultWorkingDirectory)\\ARM-TTK.XML"
+      },
+      {
+        "name": "includeTests",
+        "type": "string",
+        "label": "Tests to Include",
+        "required": false,
+        "helpMarkDown": "Comma seperated list of specific test to run, leave blank to run all tests."
+      },
+      {
+        "name": "skipTests",
+        "type": "string",
+        "label": "Tests to Skip",
+        "required": false,
+        "helpMarkDown": "Comma seperated list of specific test to skip, leave blank to run all tests."
       }
 
     ],

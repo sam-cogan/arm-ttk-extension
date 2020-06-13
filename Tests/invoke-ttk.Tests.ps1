@@ -44,6 +44,34 @@ describe "Single File Tests" {
         Invoke-TTK -templatelocation $goodFile  -resultlocation "$testPath"
         $(Get-ChildItem $testPath)[0].name |  should -be "$($(get-item $goodFile ).basename)-$($hash.Hash)-armttk.xml"
     }
+
+    it "should test only the named tests when 'Test' is provided"{
+        Invoke-TTK -templatelocation $goodFile  -resultlocation $testPath -createResultsFiles $true -Test @("VM Images Should Use Latest Version")
+        $hash = Get-FileHash -Path $goodFile -Algorithm MD5
+        [xml]$resultdoc = Get-Content "$testPath\$($(get-item $goodFile ).basename)-$($hash.Hash)-armttk.xml"
+        $testcases  = @($resultdoc."test-results"."test-suite".results."test-suite".results."test-case")
+        $testcases.Count | should be 1
+        $testcases[0].name | should -be "VM Images Should Use Latest Version - good-test.json"
+    }
+
+    it "should skip tests when the skip value is provided" {
+        $hash = Get-FileHash -Path $goodFile -Algorithm MD5
+
+        Invoke-TTK -templatelocation $goodFile  -resultlocation $testPath -createResultsFiles $true 
+        [xml]$resultdoc = Get-Content "$testPath\$($(get-item $goodFile ).basename)-$($hash.Hash)-armttk.xml"
+        $testcases  = @($resultdoc."test-results"."test-suite".results."test-suite".results."test-case")
+        $fullCount = $testcases.Count 
+
+        Invoke-TTK -templatelocation $goodFile  -resultlocation $testPath -createResultsFiles $true -Skip @("VM Images Should Use Latest Version")
+        [xml]$resultdoc = Get-Content "$testPath\$($(get-item $goodFile ).basename)-$($hash.Hash)-armttk.xml"
+        $testcases  = @($resultdoc."test-results"."test-suite".results."test-suite".results."test-case")
+        $skipCount = $testcases.Count 
+
+        $skipCount | should -be ($fullCount - 1)
+        $testcases.name | should -Not -Contain "VM Images Should Use Latest Version - good-test.json"
+        
+    }
+
 }
 
 describe "multiple file tests"{
