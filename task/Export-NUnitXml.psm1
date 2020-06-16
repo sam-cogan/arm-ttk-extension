@@ -19,7 +19,9 @@ Function Export-NUnitXml {
     )
 
     #Validate
-
+    if(-not (Test-Path $Path)){
+        New-Item -ItemType Directory -Force -Path $path | Out-Null
+    }
     if((Get-Item $Path) -isnot [System.IO.DirectoryInfo]){
         throw "resultLocation must be a folder, not a file"
     }
