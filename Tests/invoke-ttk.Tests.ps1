@@ -108,3 +108,15 @@ describe "folder with period"{
     }
 }
 
+describe "Message with HTML"{
+    $testPath = "TestDrive:\"
+
+    it "creates export file"{
+        try{
+        Invoke-TTK -templatelocation "$here\testfiles\encoding"  -resultlocation $testPath 
+        }
+        Catch{}
+        $(Get-ChildItem $testPath).count |  should -be 1
+    }
+}
+
