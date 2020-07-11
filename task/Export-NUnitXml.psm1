@@ -50,7 +50,7 @@ Function Export-NUnitXml {
   
     #Create seperate XML for each test file
     foreach ($testFile in $fileList) {
-
+   
         # Get test results that are specific to this file
         $splitTestsBody = [string]::Empty
         $filteredTestResults = $testResults | where-object { $_.file.fullpath -eq $testFile }
@@ -102,8 +102,8 @@ Function Export-NUnitXml {
                 $TestCase = @"
     <test-case description="$($result.name) in template file $fileName" name="$($result.name) - $fileName" time="$($result.timespan.toString())" asserts="0" success="False" result="Failure" executed="True">
     <failure>
-        <message>$($result.Errors.Exception) in template file $fileName</message>
-        <stack-trace>$stacktrace</stack-trace>
+        <message><![CDATA[$($result.Errors.Exception)]]> in template file $fileName</message>
+        <stack-trace><![CDATA[$stacktrace]]></stack-trace>
     </failure>
     </test-case>`n
 "@

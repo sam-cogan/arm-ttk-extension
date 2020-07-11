@@ -1,22 +1,28 @@
-﻿param(
+﻿<#
+.Synopsis
+    Ensures that all virtual machines are not using preview images
+.Description
+    Ensures that all virtual machine resources in a template are not using preview images.
+#>
+param(
 [Parameter(Mandatory=$true)]
 [PSObject]
 $TemplateObject
 )
-foreach ($resource in $templateObject.resources) {
-    # This is a PowerShell trick to simplify multiple -ors
-    # -notcontains checks that a list (on the left side) doesn't contain a value (on the right side)
-    # So this test will ignore resources that aren't /virtualmachines or /virtualmachineassets
-    if ('microsoft.compute/virtualmachinescalesets', 
-        'microsoft.compute/virtualmachines' -notcontains $resource.ResourceType) {
-        continue
+
+$storageProfiles = Find-JsonContent -Key storageProfile -InputObject $TemplateObject
+
+foreach ($sp in $storageProfiles) {
+    $storageProfile = $sp.StorageProfile
+    if ($storageProfile -is [string] -and $storageProfile -match '^\s{0,}\[') {
+        $expanded = Expand-AzTemplate -Expression $storageProfile -InputObject $TemplateObject
+        $storageProfile = $expanded
     }
-    $imageReference = $resource.virtualmachineprofile.storageprofile.imagereference
-    if (-not $imageReference) {
-        Write-Error "Virtual machine resource $($resource.Name) has no image to reference" -TargetObject $resource -ErrorId VM.Missing.Image
+    if (-not $storageProfile.imageReference) {
+        Write-Error "StorageProfile for resource '$($sp.ParentObject.Name)' must not use a preview version" -TargetObject $sp -ErrorId VM.Using.Preview.Image
     }
 
-    if ($imageReference -like '*-preview') {
-        Write-Error "Virtual machine resource $($resource.Name) must not use a preview image" -TargetObject $ResourceType -ErrorId VM.Using.Preview.Image
+    if ($storageProfile.imageReference -like '*-preview' -or $storageProfile.imageReference.version -like '*-preview') {
+        Write-Error "StorageProfile for resource '$($sp.ParentObject.Name)' must not use a preview version" -TargetObject $sp -ErrorId VM.Using.Preview.Image
     }
 }
