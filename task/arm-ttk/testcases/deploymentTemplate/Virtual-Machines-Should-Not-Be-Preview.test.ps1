@@ -10,7 +10,7 @@ param(
 $TemplateObject
 )
 
-$storageProfiles = Find-JsonContent -Key storageProfile -InputObject $TemplateObject
+$storageProfiles = Find-JsonContent -Key storageProfile -InputObject $TemplateObject | Where-Object {$_.ParentObject.type -eq "Microsoft.Compute/virtualMachines" -or $_.ParentObject.type -eq "Microsoft.Compute/virtualMachineScaleSets"}
 
 foreach ($sp in $storageProfiles) {
     $storageProfile = $sp.StorageProfile
@@ -26,3 +26,4 @@ foreach ($sp in $storageProfiles) {
         Write-Error "StorageProfile for resource '$($sp.ParentObject.Name)' must not use a preview version" -TargetObject $sp -ErrorId VM.Using.Preview.Image
     }
 }
+
