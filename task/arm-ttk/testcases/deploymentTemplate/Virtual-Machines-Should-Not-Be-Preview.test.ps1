@@ -26,3 +26,4 @@ foreach ($sp in $storageProfiles) {
         Write-Error "StorageProfile for resource '$($sp.ParentObject.Name)' must not use a preview version" -TargetObject $sp -ErrorId VM.Using.Preview.Image
     }
 }
+
