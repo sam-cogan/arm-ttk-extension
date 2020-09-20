@@ -11,7 +11,7 @@
     "version": {
       "Major": 1,
       "Minor": 0,
-      "Patch": 7
+      "Patch": 8
     },
     "instanceNameFormat": "Run Azure RM TTK Tests",
 
@@ -29,7 +29,7 @@
         "label": "Results Location",
         "required": true,
         "helpMarkDown": "Location to output test results",
-        "defaultValue": "$(System.DefaultWorkingDirectory)\\ARM-TTK.XML"
+        "defaultValue": "$(System.DefaultWorkingDirectory)"
       },
       {
         "name": "includeTests",
