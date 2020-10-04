@@ -74,6 +74,20 @@ describe "Single File Tests" {
 
 }
 
+describe "jsonc c test" {
+    $testPath = "TestDrive:\"
+    $goodFile= "$here\testfiles\single-file\good-test.jsonc"
+    $badFile = "$here\testfiles\single-file\bad-test.json" 
+
+    it "should generate no errors for a valid file"{
+        Invoke-TTK -templatelocation $goodFile  -resultlocation $testPath -createResultsFiles $false | should -BeNullOrEmpty
+    }
+
+    it "should generate errors for an invalid file"{
+        {Invoke-TTK -templatelocation $badFile  -resultlocation $testPath -createResultsFiles $false }| Should -Throw "Failures found in test results"
+    }
+}
+
 describe "multiple file tests"{
     $testPath = "TestDrive:\"
 
