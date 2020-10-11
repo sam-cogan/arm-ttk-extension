@@ -2,6 +2,7 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $invokeScript = "$here\..\task\invoke-ttk.psm1"
 $exportScript = "$here\..\task\Export-NUnitXml.psm1"
 
+
 Import-Module "$here\..\task\arm-ttk\arm-ttk.psd1"
 Import-Module "$here\..\task\Export-NUnitXml.psm1"
 Import-Module "$here\..\task\invoke-ttk.psm1"
@@ -77,7 +78,7 @@ describe "Single File Tests" {
 describe "jsonc c test" {
     $testPath = "TestDrive:\"
     $goodFile= "$here\testfiles\single-file\good-test.jsonc"
-    $badFile = "$here\testfiles\single-file\bad-test.json" 
+    $badFile = "$here\testfiles\single-file\bad-test.jsonc" 
 
     it "should generate no errors for a valid file"{
         Invoke-TTK -templatelocation $goodFile  -resultlocation $testPath -createResultsFiles $false | should -BeNullOrEmpty

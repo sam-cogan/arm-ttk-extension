@@ -57,10 +57,7 @@ Function Invoke-TTK {
     catch {
         Write-Error "Template Location is not an existing folder, file or wildcard"
     }
-    #If a folder has been passed in set the template location to a wildcard for that folder
-    if ($item -is [System.IO.DirectoryInfo]) {
-        $templatelocation = "$($templatelocation.Trimend('\'))\*"
-    }
+
    
     $files = Get-ChildItem $templatelocation -File -include "*.json", "*.jsonc" -Recurse
     $totalFileCount = $files.count
