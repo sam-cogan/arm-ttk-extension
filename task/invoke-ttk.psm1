@@ -57,7 +57,6 @@ Function Invoke-TTK {
     catch {
         Write-Error "Template Location is not an existing folder, file or wildcard"
     }
-
    
     $files = Get-ChildItem $templatelocation -File -include "*.json", "*.jsonc" -Recurse
     $totalFileCount = $files.count
