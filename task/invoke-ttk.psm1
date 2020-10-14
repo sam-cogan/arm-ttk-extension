@@ -78,6 +78,5 @@ Function Invoke-TTK {
     if ($FailedNumber -gt 0) {
         throw "Failures found in test results"
     }
-   
 
 }
