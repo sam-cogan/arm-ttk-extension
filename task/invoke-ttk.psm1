@@ -61,7 +61,8 @@ Function Invoke-TTK {
     if ($item -is [System.IO.DirectoryInfo]) {
         $templatelocation = "$($templatelocation.Trimend('\'))\*"
     }
-    $files = Get-ChildItem $templatelocation -File -include "*.json", "*.jsonc" -Recurse
+
+    $files = Get-ChildItem $templatelocation -include "*.json", "*.jsonc" -Recurse
     $totalFileCount = $files.count
 
     if ($totalFileCount -lt 1) {
