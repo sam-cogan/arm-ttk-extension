@@ -31,8 +31,17 @@ foreach ($id in $ids) { # Then loop over each object with an ID
     $exceptions = @(
         "tenantId",
         "workerSizeId", # Microsoft.Web/serverFarms
-        "serverFarmId", # Microsoft.Web/sites
-        "keyVaultSecretId" # Microsoft.Network/applicationGateways sslCertificates - this is actually a uri created with reference() and concat /secrets/secretname
+        "keyVaultSecretId", # Microsoft.Network/applicationGateways sslCertificates - this is actually a uri created with reference() and concat /secrets/secretname
+        "keyId", # Microsoft.Cdn/profiles urlSigningKeys
+        "subscriptionId", # Microsoft.Cdn/profiles urlSigningKeys
+        "StartingDeviceID", # SQLIaasVMExtension > settings/ServerConfigurationsManagementSettings/SQLStorageUpdateSettings
+        "servicePrincipalClientId", # common var name
+        "clientId", # Microsoft.BotService - common var name
+        "appId", # Microsoft.Insights
+        "tenantId", # Common Property name
+        "objectId", # Common Property name
+        "vlanId", # Unique Id to establish peering when setting up an ExpressRoute circuit
+        "SyntheticMonitorId" # Microsoft.Insights/webtests
     )
 
     if ($exceptions -contains $myIdFieldName) { # We're checking resource ids, not tenant IDs
@@ -53,8 +62,10 @@ foreach ($id in $ids) { # Then loop over each object with an ID
         }
     }
 
-    
-    
+    # Skip this check if the property is within a logic app
+    if ( $id.ParentObject.type -imatch '^microsoft\.logic/workflows$' ) {
+        continue
+    }
 
     # $myId = "$($id.id)".Trim() # Grab the actual ID,
     if (-not $myId) {
@@ -74,12 +85,7 @@ foreach ($id in $ids) { # Then loop over each object with an ID
         "reference",
         "variables",
         "subscription",
-        "guid",
-        "servicePrincipalClientId",
-        "clientId",
-        "appId",
-        "tenantId",
-        "objectId"
+        "guid"
     )
 
     # Check that it uses one of the allowed expressions - can remove variables once Expand-Template does full eval of nested vars
