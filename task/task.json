@@ -10,7 +10,7 @@
     "author": "Sam Cogan",
     "version": {
       "Major": 1,
-      "Minor": 1,
+      "Minor": 2,
       "Patch": 0
     },
     "instanceNameFormat": "Run Azure RM TTK Tests",
@@ -44,6 +44,22 @@
         "label": "Tests to Skip",
         "required": false,
         "helpMarkDown": "Comma seperated list of specific test to skip, leave blank to run all tests."
+      },
+      {
+        "name": "mainTemplates",
+        "type": "string",
+        "label": "Main Templates List",
+        "required": false,
+        "helpMarkDown": "Comma seperated list of templates to be marked as a 'main' template for the purposes of tests such as location hardcoding, leave blank to not mark any templates or rely on naming convention"
+
+      },
+      {
+        "name": "allTemplatesMain",
+        "type": "boolean",
+        "label": "Treat All Tempaltes as Main Tempaltes",
+        "required": true,
+        "helpMarkDown": "Treat all teamplates as 'main' templates for the purpose of tests such as location hardcoding",
+        "defaultValue": false
       }
 
     ],

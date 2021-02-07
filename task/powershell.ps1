@@ -9,6 +9,8 @@ $templatelocation =  get-VstsInput -Name templatelocation -Require
 $resultlocation =    get-VstsInput -Name resultLocation -Require
 $TestString =    get-VstsInput -Name includeTests
 $SkipString =    get-VstsInput -Name skipTests
+$mainTemplateString = get-VstsInput -Name mainTemplates
+$allTemplatesAreMain = get-VstsInput -Name allTemplatesMain
 
 if($TestString){
     $Test=$TestString.split(',')
@@ -24,5 +26,12 @@ else{
     $Skip =@()
 }
 
+if($mainTemplateString){
+    $mainTemplates=$mainTemplateString.split(',')
+}
+else{
+    $mainTemplates =@()
+}
 
-Invoke-TTK -templatelocation $templatelocation  -resultlocation $resultlocation -Test $Test -Skip $Skip
+
+Invoke-TTK -templatelocation $templatelocation  -resultlocation $resultlocation -Test $Test -Skip $Skip -mainTemplaes $mainTemplates -allTemplatesAreMain $allTemplatesAreMain
