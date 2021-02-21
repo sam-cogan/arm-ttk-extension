@@ -1,0 +1,64 @@
+{
+	"manifestVersion": 1,
+	"id": "ARMTTKExtension-Dev",
+	"version": "1.0.21",
+	"name": "Run ARM TTK Tests - Devlopment",
+	"description": "Run Azure Resource Manager Template Test Kit tests as part of your build or release process",
+	"publisher": "Sam-Cogan",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/sam-cogan/arm-ttk-extension"
+	},
+	"content": {
+		"details": {
+			"path": "README.md"
+		},
+		"license": {
+			"path": "LICENSE"
+		}
+	},
+	"tags": [
+		"Azure Pipelines",
+		"Azure",
+		"Azure Resource Manager",
+		"Tests"
+	],
+	"targets": [
+		{
+			"id": "Microsoft.VisualStudio.Services"
+		}
+	],
+	"icons": {
+		"default": "icon.png"
+	},
+
+
+	 "categories": [
+		"Azure Pipelines"
+	],
+	"contributions": [
+		{
+			"id": "RunARMTTKTests",
+			"type": "ms.vss-distributed-task.task",
+			"targets": [
+				"ms.vss-distributed-task.tasks"
+			],
+			"properties": {
+				"name": "task"
+			}
+		}
+	],
+	"links": {
+		"getstarted": {
+			"uri": "https://github.com/sam-cogan/arm-ttk-extension/blob/master/README.md"
+		},
+		"support": {
+			"uri": "https://github.com/sam-cogan/arm-ttk-extension/issues"
+		}
+	},
+	"files": [
+		{
+			"path": "task"
+		}
+	]
+}

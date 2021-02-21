@@ -7,7 +7,7 @@ name: Release Extension
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [ develop ]
     paths:
     - 'task/*'
 
@@ -40,25 +40,16 @@ jobs:
         # Files, comma-separated. Supposed PLACEHOLDER in them
         files: vss-extension.json
         # Comma-separated pairs PLACEHOLDER=value
-        replacements: replacements: $buildnumber$=${{ github.run_number }}, $taskid$=2ca36c0f-3e63-493e-a71a-de798e634733, $taskname$=RunARMTTKTests, $taskdisplayname$="Run Azure RM TTK Tests"
+        replacements: $buildnumber$=${{ github.run_number }}, $taskid$=12e695ee-1e9b-47f2-bc0a-3e4c726b2699, $taskname$=RunARMTTKTestsDev, $taskdisplayname$="Run Azure RM TTK Tests - Dev"
     - name: create package
       run: |
-        npx tfx-cli extension create --manifest-globs vss-extension.json
+        npx tfx-cli extension create --manifest-globs vss-extension-dev.json
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
         name: extension
-        path: Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}.vsix
-        
-    - name: GH Release
-      uses: softprops/action-gh-release@master
-      with:
-        name: ARM TTK Extension v1.0.${{ github.run_number }}
-        files: Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}.vsix
-        tag_name: v1.0.${{ github.run_number }}
-      env:
-        GITHUB_TOKEN: ${{secrets.deploy_key}}
+        path: Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}-dev.vsix
   release:
     runs-on: ubuntu-latest
     needs: build
@@ -69,5 +60,5 @@ jobs:
         name: extension
     - name: publish-extension
       run: |
-        npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}.vsix --token ${{secrets.marketplace_pat}}
+        npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}-dev.vsix --token ${{secrets.marketplace_pat}}
         

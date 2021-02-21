@@ -1,7 +1,7 @@
 {
-    "id": "2ca36c0f-3e63-493e-a71a-de798e634733",
-    "name": "RunARMTTKTests",
-    "friendlyName": "Run Azure RM TTK Tests",
+    "id": "$taskid$",
+    "name": "$taskname",
+    "friendlyName": "$taskdisplayname$",
     "description": "Run Azure Resource Manager Template Test Kit Tests against ARM Templates",
     "helpMarkDown": "[More Information](https://github.com/sam-cogan/arm-ttk-extension/blob/master/README.md)",
     "categories": "Test",
