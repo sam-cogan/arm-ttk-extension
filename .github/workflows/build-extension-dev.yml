@@ -34,7 +34,8 @@ jobs:
           NUM: ${{ github.run_number }}
       run: |
           echo "offset_build_number=$(($NUM+47))" >> $GITHUB_ENV
-    - run: echo "${{offset_build_number}}"
+    - run: |
+          echo "${{env.offset_build_number}}"
     - name: Copy file
       run: |
         rm -r task/arm-ttk/testcases/
@@ -45,7 +46,7 @@ jobs:
         # Files, comma-separated. Supposed PLACEHOLDER in them
         files: vss-extension.json
         # Comma-separated pairs PLACEHOLDER=value
-        replacements: '$buildnumber$=${{offset_build_number}}, $taskid$=12e695ee-1e9b-47f2-bc0a-3e4c726b2699, $taskname$=RunARMTTKTestsDev, $taskdisplayname$=Run Azure RM TTK Tests - Dev'
+        replacements: '$buildnumber$=${{env.offset_build_number}}, $taskid$=12e695ee-1e9b-47f2-bc0a-3e4c726b2699, $taskname$=RunARMTTKTestsDev, $taskdisplayname$=Run Azure RM TTK Tests - Dev'
     - name: create package
       run: |
         npx tfx-cli extension create --manifest-globs vss-extension-dev.json
