@@ -40,7 +40,7 @@ jobs:
         # Files, comma-separated. Supposed PLACEHOLDER in them
         files: vss-extension.json
         # Comma-separated pairs PLACEHOLDER=value
-        replacements: replacements: '$buildnumber$=${{ github.run_number }}, $taskid$=2ca36c0f-3e63-493e-a71a-de798e634733, $taskname$=RunARMTTKTests, $taskdisplayname$=Run Azure RM TTK Tests'
+        replacements: '$buildnumber$=${{ github.run_number }}, $taskid$=2ca36c0f-3e63-493e-a71a-de798e634733, $taskname$=RunARMTTKTests, $taskdisplayname$="Run Azure RM TTK Tests"'
     - name: create package
       run: |
         npx tfx-cli extension create --manifest-globs vss-extension.json
