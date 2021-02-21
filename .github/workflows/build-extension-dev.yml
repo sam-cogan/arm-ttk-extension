@@ -62,7 +62,7 @@ jobs:
       with:
         # Artifact name
         name: extension
-        path: Sam-Cogan.ARMTTKExtension-Dev-1.0.${{env.offset_build_number}}.vsix
+        path: Sam-Cogan.ARMTTKExtension-dev-1.0.${{env.offset_build_number}}.vsix
   release:
     runs-on: ubuntu-latest
     needs: build
