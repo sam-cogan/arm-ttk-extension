@@ -33,7 +33,7 @@ jobs:
       env:
           NUM: ${{ github.run_number }}
       run: |
-          echo "offset_build_number=$(($NUM+44))" >> $GITHUB_ENV
+          echo "offset_build_number=$(($NUM+40))" >> $GITHUB_ENV
     - run: |
           echo "${{env.offset_build_number}}"
     - name: Copy file
@@ -55,7 +55,7 @@ jobs:
       with:
         # Artifact name
         name: extension
-        path: Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}-dev.vsix
+        path: Sam-Cogan.ARMTTKExtension-1.0.${{env.offset_build_number}}-dev.vsix
   release:
     runs-on: ubuntu-latest
     needs: build
@@ -66,5 +66,5 @@ jobs:
         name: extension
     - name: publish-extension
       run: |
-        npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}-dev.vsix --token ${{secrets.marketplace_pat}}
+        npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-1.0.${{env.offset_build_number}}-dev.vsix --token ${{secrets.marketplace_pat}}
         
