@@ -33,7 +33,7 @@ jobs:
       env:
           NUM: ${{ github.run_number }}
       run: |
-          echo "offset_build_number=$(($NUM+40))" >> $GITHUB_ENV
+          echo "offset_build_number=$(($NUM+38))" >> $GITHUB_ENV
     - run: |
           echo "${{env.offset_build_number}}"
     - name: Copy file
@@ -71,6 +71,11 @@ jobs:
       uses: actions/download-artifact@v1.0.0
       with:
         name: extension
+    - name: run number with offset
+      env:
+          NUM: ${{ github.run_number }}
+      run: |
+          echo "offset_build_number=$(($NUM+38))" >> $GITHUB_ENV
     - name: publish-extension
       run: |
         npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-dev-1.0.${{env.offset_build_number}}.vsix --token ${{secrets.marketplace_pat}}
