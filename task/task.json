@@ -11,7 +11,7 @@
     "version": {
       "Major": 1,
       "Minor": 2,
-      "Patch": 1
+      "Patch": 2
     },
     "instanceNameFormat": "Run Azure RM TTK Tests",
 
@@ -56,7 +56,7 @@
       {
         "name": "allTemplatesMain",
         "type": "boolean",
-        "label": "Treat All Tempaltes as Main Tempaltes",
+        "label": "Treat All Templates as Main Templates",
         "required": true,
         "helpMarkDown": "Treat all templates as 'main' templates for the purpose of tests such as location hardcoding",
         "defaultValue": false
