@@ -33,7 +33,7 @@ jobs:
       env:
           NUM: ${{ github.run_number }}
       run: |
-          echo "offset_build_number=$(($NUM+47))" >> $GITHUB_ENV
+          echo "offset_build_number=$(($NUM+44))" >> $GITHUB_ENV
     - run: |
           echo "${{env.offset_build_number}}"
     - name: Copy file
