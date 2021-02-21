@@ -62,7 +62,7 @@ jobs:
       with:
         # Artifact name
         name: extension
-        path: Sam-Cogan.ARMTTKExtension-Dev-1.0.${{env.offset_build_number}}.vsix
+        path: Sam-Cogan.ARMTTKExtension-Dev-1.1.${{env.offset_build_number}}.vsix
   release:
     runs-on: ubuntu-latest
     needs: build
@@ -78,5 +78,5 @@ jobs:
           echo "offset_build_number=$(($NUM+38))" >> $GITHUB_ENV
     - name: publish-extension
       run: |
-        npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-Dev-1.0.${{env.offset_build_number}}.vsix --token ${{secrets.marketplace_pat}}
+        npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-Dev-1.1.${{env.offset_build_number}}.vsix --token ${{secrets.marketplace_pat}}
         
