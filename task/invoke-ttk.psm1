@@ -91,10 +91,10 @@ Function Invoke-TTK {
         $FailedNumber += $failedTests
         if ($cliOutputResults) {
             if ($failedTests -gt 0) {
-                Write-Host "$file failed $failedTests test" -ForegroundColor Red
+                Write-Host "##[warning] $file failed $failedTests test"
             }
             else {
-                Write-Host "$file passed all tests" -ForegroundColor Green
+                Write-Host "##[section] $file passed all tests" -ForegroundColor Green
             }
         }
     }
