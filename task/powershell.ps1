@@ -11,8 +11,8 @@ $TestString =    get-VstsInput -Name includeTests
 $SkipString =    get-VstsInput -Name skipTests
 $mainTemplateString = get-VstsInput -Name mainTemplates
 [boolean]$allTemplatesAreMain = get-VstsInput -Name allTemplatesMain -AsBool
+[boolean]$cliOutputResults = get-VstsInput -Name cliOutputResults -AsBool
 
-Write-Warning $allTemplatesAreMain
 
 if($TestString){
     $Test=$TestString.split(',')
@@ -36,4 +36,4 @@ else{
 }
 
 
-Invoke-TTK -templatelocation $templatelocation  -resultlocation $resultlocation -Test $Test -Skip $Skip -mainTemplates $mainTemplates -allTemplatesAreMain $allTemplatesAreMain
+Invoke-TTK -templatelocation $templatelocation  -resultlocation $resultlocation -Test $Test -Skip $Skip -mainTemplates $mainTemplates -allTemplatesAreMain $allTemplatesAreMain -cliOutputResults $cliOutputResults

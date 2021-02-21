@@ -11,7 +11,7 @@
     "version": {
       "Major": 1,
       "Minor": 2,
-      "Patch": 2
+      "Patch": 3
     },
     "instanceNameFormat": "Run Azure RM TTK Tests",
 
@@ -60,8 +60,15 @@
         "required": true,
         "helpMarkDown": "Treat all templates as 'main' templates for the purpose of tests such as location hardcoding",
         "defaultValue": false
+      },
+      {
+        "name": "cliOutputResults",
+        "type": "boolean",
+        "label": "Output Summary Results in CLI",
+        "required": false,
+        "helpMarkDown": "Whether to provide summary results of tests in the Azure Devops Console",
+        "defaultValue": false
       }
-
     ],
     "execution": {
       "PowerShell3": {
