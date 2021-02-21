@@ -10,7 +10,7 @@ $resultlocation =    get-VstsInput -Name resultLocation -Require
 $TestString =    get-VstsInput -Name includeTests
 $SkipString =    get-VstsInput -Name skipTests
 $mainTemplateString = get-VstsInput -Name mainTemplates
-$allTemplatesAreMain = get-VstsInput -Name allTemplatesMain
+$allTemplatesAreMain = get-VstsInput -Name allTemplatesMain -AsBool
 
 if($TestString){
     $Test=$TestString.split(',')

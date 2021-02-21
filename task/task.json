@@ -58,7 +58,7 @@
         "type": "boolean",
         "label": "Treat All Tempaltes as Main Tempaltes",
         "required": true,
-        "helpMarkDown": "Treat all teamplates as 'main' templates for the purpose of tests such as location hardcoding",
+        "helpMarkDown": "Treat all templates as 'main' templates for the purpose of tests such as location hardcoding",
         "defaultValue": false
       }
 
