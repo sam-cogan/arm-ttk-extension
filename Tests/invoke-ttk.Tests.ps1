@@ -1,4 +1,7 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+BeforeAll {
+
+$here = split-path $PSCommandPath -Parent
 $invokeScript = "$here\..\task\invoke-ttk.psm1"
 $exportScript = "$here\..\task\Export-NUnitXml.psm1"
 
@@ -6,7 +9,7 @@ $exportScript = "$here\..\task\Export-NUnitXml.psm1"
 Import-Module "$here\..\task\arm-ttk\arm-ttk.psd1"
 Import-Module "$here\..\task\Export-NUnitXml.psm1"
 Import-Module "$here\..\task\invoke-ttk.psm1"
-
+}
 
 Describe "File Test" {
     it " includes an invoke-ttk.psm1 file" {
@@ -23,9 +26,11 @@ Describe "File Test" {
 }
 
 describe "Single File Tests" {
+    BeforeAll{
     $testPath = "TestDrive:\"
     $goodFile= "$here\testfiles\single-file\good-test.json"
     $badFile = "$here\testfiles\single-file\bad-test.json" 
+    }
 
     it "should generate no errors for a valid file"{
         Invoke-TTK -templatelocation $goodFile  -resultlocation $testPath -createResultsFiles $false | should -BeNullOrEmpty
@@ -51,7 +56,7 @@ describe "Single File Tests" {
         $hash = Get-FileHash -Path $goodFile -Algorithm MD5
         [xml]$resultdoc = Get-Content "$testPath\$($(get-item $goodFile ).basename)-$($hash.Hash)-armttk.xml"
         $testcases  = @($resultdoc."test-results"."test-suite".results."test-suite".results."test-case")
-        $testcases.Count | should be 1
+        $testcases.Count | should -be 1 
         $testcases[0].name | should -be "VM Images Should Use Latest Version - good-test.json"
     }
 
@@ -90,7 +95,9 @@ describe "Single File Tests" {
 # }
 
 describe "multiple file tests"{
+    BeforeAll{
     $testPath = "TestDrive:\"
+    }
 
     it "generates a results file per template"{
         try{
@@ -115,7 +122,10 @@ describe "multiple file tests"{
 }
 
 describe "folder with period"{
+       BeforeAll{
     $testPath = "TestDrive:\"
+    }
+
 
     it "runs tests sucessfully"{
         Invoke-TTK -templatelocation "$here\testfiles\dot.folder"  -resultlocation $testPath 
@@ -124,7 +134,10 @@ describe "folder with period"{
 }
 
 describe "Message with HTML"{
+       BeforeAll{
     $testPath = "TestDrive:\"
+    }
+
 
     it "creates export file"{
         try{
@@ -132,6 +145,25 @@ describe "Message with HTML"{
         }
         Catch{}
         $(Get-ChildItem $testPath).count |  should -be 1
+    }
+}
+
+describe "Setting Main Template"{
+       BeforeAll{
+    $testPath = "TestDrive:\"
+    }
+
+
+    it "has no errors when main template is set"{
+        
+        Invoke-TTK -templatelocation "$here\testfiles\mainTemplate" -mainTemplates @("newStorageAccount.json")  -resultlocation $testPath | should -BeNullOrEmpty
+      
+    }
+
+     it "has errors when main template is not set"{
+        
+        {Invoke-TTK -templatelocation "$here\testfiles\mainTemplate"   -resultlocation $testPath} | Should -Throw "Failures found in test results"
+      
     }
 }
 

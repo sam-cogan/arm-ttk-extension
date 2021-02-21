@@ -15,7 +15,7 @@ $TemplateObject
 )
 
 # First, find all objects with an ID property in the MainTemplate.
-$ids = $TemplateObject  | Find-JsonContent -Key *id -Like
+$ids = $TemplateObject.resources | Find-JsonContent -Key *id -Like
 
 
 # If the "Parameters" property or "Outputs" property is in the lineage, skip check
@@ -25,12 +25,13 @@ $ids = $TemplateObject  | Find-JsonContent -Key *id -Like
 
 foreach ($id in $ids) { # Then loop over each object with an ID
     $myIdFieldName = $id.PropertyName
-    $myId = $id.$myIdFieldName        
+    $myId = $id.$myIdFieldName
 
     # these properties are exempt, since they are not actually resourceIds
     $exceptions = @(
         "tenantId",
-        "workerSizeId", # Microsoft.Web/serverFarms
+        "targetWorkerSizeId", # Microsoft.Web/serverFarms (later apiVersions)
+        "workerSizeId",       # Microsoft.Web/serverFarms (older apiVersions)
         "keyVaultSecretId", # Microsoft.Network/applicationGateways sslCertificates - this is actually a uri created with reference() and concat /secrets/secretname
         "keyId", # Microsoft.Cdn/profiles urlSigningKeys
         "subscriptionId", # Microsoft.Cdn/profiles urlSigningKeys
@@ -41,7 +42,10 @@ foreach ($id in $ids) { # Then loop over each object with an ID
         "tenantId", # Common Property name
         "objectId", # Common Property name
         "vlanId", # Unique Id to establish peering when setting up an ExpressRoute circuit
-        "SyntheticMonitorId" # Microsoft.Insights/webtests
+        "SyntheticMonitorId", # Microsoft.Insights/webtests
+        "policyDefinitionReferenceId", # Microsft.Authorization/policySetDefinition unique Id used when setting up a PolicyDefinitionReference
+        "timezoneId", # Microsoft.SQL/managedInstances
+        "targetProtectionContainerId" # Microsoft.RecoveryServices/vaults/replicationFabrics/replicationProtectionContainers/replicationProtectionContainerMappings (yes really)
     )
 
     if ($exceptions -contains $myIdFieldName) { # We're checking resource ids, not tenant IDs
@@ -73,7 +77,7 @@ foreach ($id in $ids) { # Then loop over each object with an ID
         continue
     }
     $expandedId = Expand-AzTemplate -Expression $myId -InputObject $TemplateObject -Exclude Parameters # then expand it.
-    
+
     # these are allowed for resourceIds
     $allowedExpressions = @(
         "extensionResourceId",
@@ -107,4 +111,3 @@ foreach ($id in $ids) { # Then loop over each object with an ID
              -TargetObject $id -ErrorId ResourceId.Should.Contain.Proper.Expression
     }
 }
-
