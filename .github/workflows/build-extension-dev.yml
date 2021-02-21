@@ -62,7 +62,7 @@ jobs:
       with:
         # Artifact name
         name: extension
-        path: Sam-Cogan.ARMTTKExtension-1.0.${{env.offset_build_number}}-dev.vsix
+        path: Sam-Cogan.ARMTTKExtension-Dev-1.0.${{env.offset_build_number}}.vsix
   release:
     runs-on: ubuntu-latest
     needs: build
@@ -73,5 +73,5 @@ jobs:
         name: extension
     - name: publish-extension
       run: |
-        npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-1.0.${{env.offset_build_number}}-dev.vsix --token ${{secrets.marketplace_pat}}
+        npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-dev-1.0.${{env.offset_build_number}}.vsix --token ${{secrets.marketplace_pat}}
         
