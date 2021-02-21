@@ -40,13 +40,20 @@ jobs:
       run: |
         rm -r task/arm-ttk/testcases/
         cp -r ttk_files/arm-ttk/testcases/ task/arm-ttk/testcases/       
-    - name: Replace Action
+    - name: Replace Text In Exension JSON
       uses: datamonsters/replace-action@v2
       with:
         # Files, comma-separated. Supposed PLACEHOLDER in them
-        files: vss-extension.json
+        files: vss-extension-dev.json
         # Comma-separated pairs PLACEHOLDER=value
-        replacements: '$buildnumber$=${{env.offset_build_number}}, $taskid$=12e695ee-1e9b-47f2-bc0a-3e4c726b2699, $taskname$=RunARMTTKTestsDev, $taskdisplayname$=Run Azure RM TTK Tests - Dev'
+        replacements: $buildnumber$=${{env.offset_build_number}}
+    - name: Replace Text in task.json
+      uses: datamonsters/replace-action@v2
+      with:
+        # Files, comma-separated. Supposed PLACEHOLDER in them
+        files: task/task.json
+        # Comma-separated pairs PLACEHOLDER=value
+        replacements: $taskid$=12e695ee-1e9b-47f2-bc0a-3e4c726b2699, $taskname$=RunARMTTKTestsDev, $taskdisplayname$="Run Azure RM TTK Tests - Dev"
     - name: create package
       run: |
         npx tfx-cli extension create --manifest-globs vss-extension-dev.json
