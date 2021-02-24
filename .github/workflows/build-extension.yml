@@ -40,7 +40,14 @@ jobs:
         # Files, comma-separated. Supposed PLACEHOLDER in them
         files: vss-extension.json
         # Comma-separated pairs PLACEHOLDER=value
-        replacements: '$buildnumber$=${{ github.run_number }}, $taskid$=2ca36c0f-3e63-493e-a71a-de798e634733, $taskname$=RunARMTTKTests, $taskdisplayname$="Run Azure RM TTK Tests"'
+        replacements: $buildnumber$=${{ github.run_number }}
+    - name: Replace Text in task.json
+      uses: datamonsters/replace-action@v2
+      with:
+        # Files, comma-separated. Supposed PLACEHOLDER in them
+        files: task/task.json
+        # Comma-separated pairs PLACEHOLDER=value
+        replacements: $taskid$=2ca36c0f-3e63-493e-a71a-de798e634733, $taskname$=RunARMTTKTests, $taskdisplayname$="Run Azure RM TTK Tests"
     - name: create package
       run: |
         npx tfx-cli extension create --manifest-globs vss-extension.json
