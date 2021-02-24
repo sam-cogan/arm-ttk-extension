@@ -5,11 +5,17 @@ function Test-FolderContents {
         [string]$filter,
         [boolean]$createResultsFiles,
         [string[]]$Test,
-        [string[]]$Skip
+        [string[]]$Skip,
+        [boolean]$mainTemplate
     )
     
     #Path is always set to folder due to limitation of ARMTTK, filter then picks file(s) or full folder to test
-    $results = Test-AzTemplate -TemplatePath $folder -File $filter -Skip $Skip -Test $Test -ErrorAction Continue
+    if ($mainTemplate) {
+        $results = Test-AzTemplate -TemplatePath $folder -File $filter -Skip $Skip -Test $Test -mainTemplate $filter -ErrorAction  Continue
+    }
+    else {
+        $results = Test-AzTemplate -TemplatePath $folder -File $filter -Skip $Skip -Test $Test -ErrorAction Continue
+    }
     if ($createResultsFiles) {
         Export-NUnitXml -TestResults $results -Path $resultlocation
     }
@@ -41,8 +47,13 @@ Function Invoke-TTK {
         [Alias('Tests')]
         [string[]]$Test,
         # List of tests to skip
-        [string[]]$Skip
-    
+        [string[]]$Skip,
+        # List of files to treat as main templates
+        [string[]]$MainTemplates,
+        # treat all templates as main template
+        [boolean]$allTemplatesAreMain = $false,
+        # Whether to provide summary outputs at the CLI
+        [boolean]$cliOutputResults = $false
 
     )
 
@@ -72,7 +83,20 @@ Function Invoke-TTK {
     $FailedNumber = 0
     foreach ($file in $files) {
         $fileInfo = [System.IO.FileInfo]$file    
-        $FailedNumber += Test-FolderContents -folder $fileInfo.Directory.FullName -filter $fileInfo.Name -createResultsFiles $createResultsFiles -Test $Test -Skip $Skip
+        $mainTemplate = $false
+        if (($mainTemplates -contains $fileInfo.name) -or $allTemplatesAreMain) {
+            $mainTemplate = $true    
+        }
+        $failedTests = Test-FolderContents -folder $fileInfo.Directory.FullName -filter $fileInfo.Name -createResultsFiles $createResultsFiles -Test $Test -Skip $Skip -mainTemplate $mainTemplate
+        $FailedNumber += $failedTests
+        if ($cliOutputResults) {
+            if ($failedTests -gt 0) {
+                Write-Host "##[warning] $file failed $failedTests test"
+            }
+            else {
+                Write-Host "##[section] $file passed all tests" -ForegroundColor Green
+            }
+        }
     }
 
     if ($FailedNumber -gt 0) {

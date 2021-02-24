@@ -1,6 +1,6 @@
 {
     "id": "$taskid$",
-    "name": "$taskname",
+    "name": "$taskname$",
     "friendlyName": "$taskdisplayname$",
     "description": "Run Azure Resource Manager Template Test Kit Tests against ARM Templates",
     "helpMarkDown": "[More Information](https://github.com/sam-cogan/arm-ttk-extension/blob/master/README.md)",
@@ -10,8 +10,8 @@
     "author": "Sam Cogan",
     "version": {
       "Major": 1,
-      "Minor": 1,
-      "Patch": 0
+      "Minor": 2,
+      "Patch": 4
     },
     "instanceNameFormat": "Run Azure RM TTK Tests",
 
@@ -44,8 +44,31 @@
         "label": "Tests to Skip",
         "required": false,
         "helpMarkDown": "Comma seperated list of specific test to skip, leave blank to run all tests."
-      }
+      },
+      {
+        "name": "mainTemplates",
+        "type": "string",
+        "label": "Main Templates List",
+        "required": false,
+        "helpMarkDown": "Comma seperated list of templates to be marked as a 'main' template for the purposes of tests such as location hardcoding, leave blank to not mark any templates or rely on naming convention"
 
+      },
+      {
+        "name": "allTemplatesMain",
+        "type": "boolean",
+        "label": "Treat All Templates as Main Templates",
+        "required": true,
+        "helpMarkDown": "Treat all templates as 'main' templates for the purpose of tests such as location hardcoding",
+        "defaultValue": false
+      },
+      {
+        "name": "cliOutputResults",
+        "type": "boolean",
+        "label": "Output Summary Results in CLI",
+        "required": false,
+        "helpMarkDown": "Whether to provide summary results of tests in the Azure Devops Console",
+        "defaultValue": false
+      }
     ],
     "execution": {
       "PowerShell3": {

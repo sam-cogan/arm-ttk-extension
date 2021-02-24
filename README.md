@@ -31,6 +31,9 @@ You can also provide these optional parameters:
 
 1. A comma seperated list of test to run, if you provide this list then only the tests provided will be run, all other tests will be skipped. Leave blank to run all tests. If the test names are incorrect then all tests will run. The full list of test case names can be foun in the ARMTTK [here](https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate).
 2. A comma seperated list tests to skip, all other tests will be run. Leave blank to run all tests. The full list of test case names can be foun in the ARMTTK [here](https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate).
+3. A comma separated list of files to treat as the "main template" for the purpose of tests that require this, such as the "Location must not be hardcoded" test.
+4. A boolean to indicate whether to treat all templates as the "main template" for the purpose of tests that require this, such as the "Location must not be hardcoded" test - defaults to false
+5. A boolean to output additional test result summary to the Azure DevOps CLI - defaults to false
 
 ```yaml
 - task: RunARMTTKTests@1
@@ -39,6 +42,9 @@ You can also provide these optional parameters:
     resultLocation: '$(System.DefaultWorkingDirectory)\results'
     includeTests: 'VM Images Should Use Latest Version,Resources Should Have Location'
     skipTests: 'VM Images Should Use Latest Version,Resources Should Have Location'
+    mainTemplates: 'template1.json, template2.json'
+    allTemplatesMain: false
+    cliOutputResults: true
 ```
 
 ### Test Results

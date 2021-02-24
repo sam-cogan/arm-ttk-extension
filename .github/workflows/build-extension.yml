@@ -49,13 +49,13 @@ jobs:
       with:
         # Artifact name
         name: extension
-        path: Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}.vsix
+        path: Sam-Cogan.ARMTTKExtension-1.1.${{ github.run_number }}.vsix
         
     - name: GH Release
       uses: softprops/action-gh-release@master
       with:
         name: ARM TTK Extension v1.0.${{ github.run_number }}
-        files: Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}.vsix
+        files: Sam-Cogan.ARMTTKExtension-1.1.${{ github.run_number }}.vsix
         tag_name: v1.0.${{ github.run_number }}
       env:
         GITHUB_TOKEN: ${{secrets.deploy_key}}
@@ -69,5 +69,5 @@ jobs:
         name: extension
     - name: publish-extension
       run: |
-        npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-1.0.${{ github.run_number }}.vsix --token ${{secrets.marketplace_pat}}
+        npx tfx-cli extension publish --vsix extension/Sam-Cogan.ARMTTKExtension-1.1.${{ github.run_number }}.vsix --token ${{secrets.marketplace_pat}}
         
