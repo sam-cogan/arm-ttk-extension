@@ -73,6 +73,19 @@ Function Invoke-TTK {
         $templatelocation = "$($templatelocation.Trimend('\'))\*"
     }
 
+
+    $bicepFiles = Get-ChildItem $templatelocation -include "*.bicep" -Recurse
+
+    if($bicepFiles.count -gt 0){
+        if ((Get-Command "bicep.exe" -ErrorAction SilentlyContinue) -eq $null -and (Get-Command "$PSScriptRoot\bicep.exe" -ErrorAction SilentlyContinue) -eq $null) {
+        write-Host "Bicep Not Found, Downloading..."
+        (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe", "$PSScriptRoot\bicep.exe")
+        }
+        foreach($bicepFile in $bicepFiles){
+            & "$PSScriptRoot\bicep.exe" build $bicepFile
+        }
+    }
+
     $files = Get-ChildItem $templatelocation -include "*.json", "*.jsonc" -Recurse
     $totalFileCount = $files.count
 
