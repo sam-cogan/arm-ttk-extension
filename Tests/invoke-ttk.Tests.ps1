@@ -145,7 +145,7 @@ describe "Message with HTML"{
 
 describe "Setting Main Template"{
        BeforeAll{
-    $testPath = "c:\temp\b"
+    $testPath = "TestDrive:\"
     }
 
 
