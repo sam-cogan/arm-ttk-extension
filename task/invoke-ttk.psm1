@@ -100,6 +100,8 @@ Function Invoke-TTK {
         if (($mainTemplates -contains $fileInfo.name) -or $allTemplatesAreMain) {
             $mainTemplate = $true    
         }
+        #hack to skip this test temporarily, as it causes errors in PowerShell 5
+        $skip = $skip += "Secure-Params-In-Nested-Deployments"
         $failedTests = Test-FolderContents -folder $fileInfo.Directory.FullName -filter $fileInfo.Name -createResultsFiles $createResultsFiles -Test $Test -Skip $Skip -mainTemplate $mainTemplate
         $FailedNumber += $failedTests
         if ($cliOutputResults) {
