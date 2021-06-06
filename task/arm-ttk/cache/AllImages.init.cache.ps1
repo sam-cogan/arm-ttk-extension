@@ -1,4 +1,7 @@
-﻿$MyFile= $MyInvocation.MyCommand.ScriptBlock.File  
+#TODO - don't think this cache is ever used
+exit
+
+$MyFile= $MyInvocation.MyCommand.ScriptBlock.File  
 $myName = $MyFile | Split-Path -Leaf 
 $myName = $myName -replace '\.init\.cache\.ps1'
 $myRoot = $MyFile | Split-Path
@@ -11,4 +14,4 @@ if (-not $images) {
     return
 }
 
-$images | ConvertTo-Json -Depth 100 | Set-Content $MyOutputFile 
+$images | Sort-Object Urn | ConvertTo-Json -Depth 100 | Set-Content $MyOutputFile 

@@ -144,7 +144,8 @@
                 'CreateUIDefinitionFullPath','createUIDefinitionText','CreateUIDefinitionObject',
                 'FolderName', 'HasCreateUIDefinition', 'IsMainTemplate','FolderFiles',
                 'MainTemplatePath', 'MainTemplateObject', 'MainTemplateText',
-                'MainTemplateResources','MainTemplateVariables','MainTemplateParameters', 'MainTemplateOutputs'
+                'MainTemplateResources','MainTemplateVariables','MainTemplateParameters', 'MainTemplateOutputs', 'TemplateMetadata',
+                'isParametersFile', 'ParameterFileName', 'ParameterObject', 'ParameterText'
 
             foreach ($_ in $WellKnownVariables) {
                 $ExecutionContext.SessionState.PSVariable.Set($_, $null)
@@ -165,6 +166,14 @@
             #*$TemplateObject (the template text, converted from JSON)
             $TemplateObject = Import-Json -FilePath $TemplateFullPath
 
+            if($TemplateObject.metadata -ne $null){
+                $TemplateMetadata = $($TemplateObject.metadata)
+            } else {
+                $TemplateMetadata = @{}
+            }
+
+            $isParametersFile = $resolvedTemplatePath -like '*.parameters.json'
+
             if ($resolvedTemplatePath -like '*.json' -and 
                 $TemplateObject.'$schema' -like '*CreateUIDefinition*') {
                 $createUiDefinitionFullPath = "$resolvedTemplatePath"
@@ -172,6 +181,15 @@
                 $createUIDefinitionObject = Import-Json -FilePath $createUiDefinitionFullPath
                 $HasCreateUIDefinition = $true
                 $isMainTemplate = $false
+                $templateFile =  $TemplateText = $templateObject = $TemplateFullPath = $templateFileName = $null
+            } elseif ($isParametersFile) {
+                #*$parameterText (the text contents of a parameters file (*.parameters.json)
+                $ParameterText = $TemplateText
+                #*$parameterObject (the text, converted from json)
+                $ParameterObject =  $TemplateObject
+                #*$HasParameter (indicates if parameters file exists (*.parameters.json))
+                $HasParameters = $true   
+                $ParameterFileName = $templateFileName
                 $templateFile =  $TemplateText = $templateObject = $TemplateFullPath = $templateFileName = $null
             } else {
                 #*$CreateUIDefinitionFullPath (the path to CreateUIDefinition.json)
@@ -230,6 +248,7 @@
                 #*MainTemplateObject (the main template, converted from JSON)
                 $MainTemplateObject = Import-Json -FilePath $MainTemplatePath
                 #*MainTemplateResources (the resources and child resources in the main template)
+                # TODO this was removed from the only test using it (it wasn't working, can probably remove from the fw)
                 $MainTemplateResources = if ($mainTemplateObject.Resources) {
                     Expand-Resource -Resource $MainTemplateObject.resources
                 } else { $null }
