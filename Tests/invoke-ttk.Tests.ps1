@@ -169,12 +169,18 @@ describe "bicep file tests"{
  write-host "$here"
     it "has generated the correct result files"{
 
+        
+   try{
         Invoke-TTK -templatelocation "$here\testfiles\bicep"  -resultlocation "$testPath"
+        }
+        catch{
+            $_.Exception.Message | should -be "Failures found in test results"
+        }
+        finally{
             Get-ChildItem $testPath
             $(Get-ChildItem $testPath).count |  should -be 2
-        
+        }
 
     }
-
 
 }
