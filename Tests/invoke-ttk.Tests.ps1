@@ -108,16 +108,11 @@ describe "multiple file tests"{
         }
         finally{
             Get-ChildItem $testPath
-            $(Get-ChildItem $testPath).count |  should -be 5
+            $(Get-ChildItem $testPath).count |  should -be 7
         }
 
     }
 
-    it "does not generate a results file for a paramters file"{
-        $paramFile="$here\testfiles\multiple-files\CrossSubscriptionDeployments.parameters.json"
-        $hash = Get-FileHash -Path $paramFile -Algorithm MD5
-        $(Get-ChildItem $testPath).name | should -not -contain "CrossSubscriptionDeployments.parameters-$($hash.Hash)-armttk.xml"
-    }
 
 }
 
@@ -167,3 +162,25 @@ describe "Setting Main Template"{
     }
 }
 
+describe "bicep file tests"{
+    BeforeAll{
+    $testPath = "TestDrive:\"
+    }
+ write-host "$here"
+    it "has generated the correct result files"{
+
+        
+   try{
+        Invoke-TTK -templatelocation "$here\testfiles\bicep"  -resultlocation "$testPath"
+        }
+        catch{
+            $_.Exception.Message | should -be "Failures found in test results"
+        }
+        finally{
+            Get-ChildItem $testPath
+            $(Get-ChildItem $testPath).count |  should -be 2
+        }
+
+    }
+
+}

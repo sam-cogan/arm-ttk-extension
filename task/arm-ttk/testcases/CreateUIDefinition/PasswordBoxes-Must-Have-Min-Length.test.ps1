@@ -19,7 +19,7 @@ $PasswordMinLength = 12
 $passwordBoxes = $CreateUIDefinitionObject | 
     Find-JsonContent -Key type -Value Microsoft.Common.PasswordBox
     
-$lengthConstraintRegex = [Regex]::new('\{(?<Min>\d+),(?<Max>\d+)?\}\$$')
+$lengthConstraintRegex = [Regex]::new('\{(?<Min>\d+)')
 
 foreach ($pwb in $passwordBoxes) { # Loop over each password box
     if (-not $pwb.constraints) {
@@ -30,14 +30,23 @@ foreach ($pwb in $passwordBoxes) { # Loop over each password box
         continue
     }
 
+    if ($pwb.constraints.regex -match '^\s{0,}\[' -and 
+        $pwb.constraints.regex -match '\]\s{0,}$') { # If the constraint Regex is an expression
+        continue # continue, as we don't want it to error and we cannot judge complexity of the expression result.
+    }
+
     try { # If it did,
         $constraintWasRegex = [Regex]::new($textbox.constraints.regex) # try to cast to a regex
-        $hasLengthConstraint = $lengthConstraintRegex.Match($pwb.constraints.regex)
+        $hasLengthConstraint = $lengthConstraintRegex.Matches($pwb.constraints.regex)
 
-        if (-not $hasLengthConstraint.Success) {
+        if (-not $hasLengthConstraint) {
             Write-Error "PasswordBox '$($pwb.Name)' regex does not have a length constraint." -TargetObject $pwb 
         } else {
-            if ($passWordMinLength -gt $hasLengthConstraint.Groups['Min'].Value) {
+            $totalMins = 0
+            foreach ($match in $hasLengthConstraint) {
+                $totalMins += $match.Groups['Min'].Value -as [int]
+            }
+            if ($passWordMinLength -gt $totalMins) {
                 Write-Error "PasswordBox '$($pwb.Name)' regex does not have a minimum length of $PasswordMinLength" -TargetObject $pwb
             }
         }

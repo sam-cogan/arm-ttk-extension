@@ -4,7 +4,7 @@ param()
 Import-Module "$PSScriptRoot\arm-ttk\arm-ttk.psd1"
 Import-Module "$PSScriptRoot\Export-NUnitXml.psm1"
 Import-Module "$PSScriptRoot\invoke-ttk.psm1"
-
+write-host "host: $PSScriptRoot"
 $templatelocation =  get-VstsInput -Name templatelocation -Require
 $resultlocation =    get-VstsInput -Name resultLocation -Require
 $TestString =    get-VstsInput -Name includeTests

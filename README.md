@@ -24,7 +24,7 @@ This extension provides an easy way to run the ARM TTK tests against your templa
 
 This extension expects two parameters
 
-1. The path to the files you want to test. This can be a folder (all templates in the folder will be tested), a single file, or a path using a wildcard. You do not need to filter out non-templates, the extension will do this for you.
+1. The path to the files you want to test. This can be a folder (all templates in the folder will be tested), a single file, or a path using a wildcard. You do not need to filter out non-templates, the extension will do this for you. The extension supports json, jsonc and bicep files.
 2. The path to output the test results format. This extension outputs the results of all tests in nunit 2 format XML files, one file per file tested. These files use the format "<testFileName>-armttk.xml"
 
 You can also provide these optional parameters:
