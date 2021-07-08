@@ -15,21 +15,21 @@ $mainTemplateString = get-VstsInput -Name mainTemplates
 
 
 if($TestString){
-    $Test=$TestString.split(',')
+    $Test=$TestString.split(',').trim()
 }
 else{
     $Test =@()
 }
 
 if($SkipString){
-    $Skip=$SkipString.split(',')
+    $Skip=$SkipString.split(',').trim()
 }
 else{
     $Skip =@()
 }
 
 if($mainTemplateString){
-    $mainTemplates=$mainTemplateString.split(',')
+    $mainTemplates=$mainTemplateString.split(',').trim()
 }
 else{
     $mainTemplates =@()
