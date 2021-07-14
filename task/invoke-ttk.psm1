@@ -7,6 +7,7 @@ function Test-FolderContents {
         [string[]]$Test,
         [string[]]$Skip,
         [boolean]$mainTemplate
+        [boolean]$ignoreExitCode
     )
     
     #Path is always set to folder due to limitation of ARMTTK, filter then picks file(s) or full folder to test
@@ -114,8 +115,16 @@ Function Invoke-TTK {
         }
     }
 
-    if ($FailedNumber -gt 0) {
-        throw "Failures found in test results"
+    if ($FailedNumber -gt 0  {
+        if($ignoreExitCode){
+            write-host "Failures found in test results but ignoring exit code"
+        }
+        else {
+            throw "Failures found in test results"
+        }
+        
+        
     }
-
+    
+    
 }

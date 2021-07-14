@@ -11,7 +11,7 @@
     "version": {
       "Major": 1,
       "Minor": 2,
-      "Patch": 9
+      "Patch": 10
     },
     "instanceNameFormat": "Run Azure RM TTK Tests",
 
@@ -68,7 +68,18 @@
         "required": false,
         "helpMarkDown": "Whether to provide summary results of tests in the Azure Devops Console",
         "defaultValue": false
+      },
+      {
+        "name": "ignoreExitCode",
+        "type": "boolean",
+        "label": "Do not fail task on failed tests",
+        "required": true,
+        "helpMarkDown": "Ignore Exit Code and do not fail task when there are failed tests",
+        "defaultValue": false
       }
+
+
+      
     ],
     "execution": {
       "PowerShell3": {
