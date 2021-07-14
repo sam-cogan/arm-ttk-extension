@@ -6,7 +6,7 @@ function Test-FolderContents {
         [boolean]$createResultsFiles,
         [string[]]$Test,
         [string[]]$Skip,
-        [boolean]$mainTemplate
+        [boolean]$mainTemplate,
         [boolean]$ignoreExitCode
     )
     
