@@ -115,7 +115,7 @@ Function Invoke-TTK {
         }
     }
 
-    if ($FailedNumber -gt 0  {
+    if ($FailedNumber -gt 0)  {
         if($ignoreExitCode){
             write-host "Failures found in test results but ignoring exit code"
         }
