@@ -11,7 +11,7 @@
     "version": {
       "Major": 1,
       "Minor": 2,
-      "Patch": 12
+      "Patch": 13
     },
     "instanceNameFormat": "Run Azure RM TTK Tests",
 
@@ -73,7 +73,7 @@
         "name": "ignoreExitCode",
         "type": "boolean",
         "label": "Do not fail task on failed tests",
-        "required": true,
+        "required": false,
         "helpMarkDown": "Ignore Exit Code and do not fail task when there are failed tests",
         "defaultValue": false
       }

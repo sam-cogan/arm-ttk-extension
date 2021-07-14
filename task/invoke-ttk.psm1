@@ -7,7 +7,7 @@ function Test-FolderContents {
         [string[]]$Test,
         [string[]]$Skip,
         [boolean]$mainTemplate,
-        [boolean]$ignoreExitCode
+        [boolean]$ignoreExitCode = $false
     )
     
     #Path is always set to folder due to limitation of ARMTTK, filter then picks file(s) or full folder to test
