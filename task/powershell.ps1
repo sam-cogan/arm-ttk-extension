@@ -12,7 +12,7 @@ $SkipString =    get-VstsInput -Name skipTests
 $mainTemplateString = get-VstsInput -Name mainTemplates
 [boolean]$allTemplatesAreMain = get-VstsInput -Name allTemplatesMain -AsBool
 [boolean]$cliOutputResults = get-VstsInput -Name cliOutputResults -AsBool
-
+[boolean]$ignoreExitCode = get-VstsInput -Name ignoreExitCode -AsBool
 
 if($TestString){
     $Test=$TestString.split(',').trim()
