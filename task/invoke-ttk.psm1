@@ -6,8 +6,7 @@ function Test-FolderContents {
         [boolean]$createResultsFiles,
         [string[]]$Test,
         [string[]]$Skip,
-        [boolean]$mainTemplate,
-        [boolean]$ignoreExitCode = $false
+        [boolean]$mainTemplate
     )
     
     #Path is always set to folder due to limitation of ARMTTK, filter then picks file(s) or full folder to test
@@ -55,6 +54,8 @@ Function Invoke-TTK {
         [boolean]$allTemplatesAreMain = $false,
         # Whether to provide summary outputs at the CLI
         [boolean]$cliOutputResults = $false
+        # Whether to ignore exit code and always pass task
+        [boolean]$ignoreExitCode = $false
 
     )
 
