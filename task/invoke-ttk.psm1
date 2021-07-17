@@ -53,7 +53,7 @@ Function Invoke-TTK {
         # treat all templates as main template
         [boolean]$allTemplatesAreMain = $false,
         # Whether to provide summary outputs at the CLI
-        [boolean]$cliOutputResults = $false
+        [boolean]$cliOutputResults = $false,
         # Whether to ignore exit code and always pass task
         [boolean]$ignoreExitCode = $false
 
