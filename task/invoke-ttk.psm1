@@ -53,7 +53,9 @@ Function Invoke-TTK {
         # treat all templates as main template
         [boolean]$allTemplatesAreMain = $false,
         # Whether to provide summary outputs at the CLI
-        [boolean]$cliOutputResults = $false
+        [boolean]$cliOutputResults = $false,
+        # Whether to ignore exit code and always pass task
+        [boolean]$ignoreExitCode = $false
 
     )
 
@@ -114,8 +116,16 @@ Function Invoke-TTK {
         }
     }
 
-    if ($FailedNumber -gt 0) {
-        throw "Failures found in test results"
+    if ($FailedNumber -gt 0)  {
+        if($ignoreExitCode){
+            write-host "Failures found in test results but ignoring exit code"
+        }
+        else {
+            throw "Failures found in test results"
+        }
+        
+        
     }
-
+    
+    
 }
