@@ -37,6 +37,7 @@ $PropertiesThatCanBeEmpty = 'resources',
                             'parameters',
                             'functions',
                             'properties',
+                            'template',
                             'defaultValue', # enables optional parameters
                             'accessPolicies',  # keyVault requires this
                             'value', # Microsoft.Resources/deployments - passing empty strings to a nested deployment
@@ -44,7 +45,8 @@ $PropertiesThatCanBeEmpty = 'resources',
                             'inputs', # Microsoft.Portal/dashboard
                             'notEquals', # Microsoft.Authorization/policyDefinitions policyRule'
                             'clientId', # Microsoft.ContainerService/managedClusters.properties.servicePrincipalProfile
-                            'allowedCallerIpAddresses' # Microsoft.Logic/workflows Access Control
+                            'allowedCallerIpAddresses', # Microsoft.Logic/workflows Access Control
+                            'workerPools' # Microsoft.Web/hostingEnvironments
 
 if ($emptyItems) {
     foreach ($emptyItem in $emptyItems) {
