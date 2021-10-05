@@ -84,12 +84,13 @@ foreach ($foundRef in $foundReferences) {
         if (-not $validApiVersions) { 
             continue
         }
-         
     }
 
     # Create a string of recent or allowed apiVersions for display in the error message
     $recentApiVersions = ""
 
+    $howOutOfDate = -1
+    $n = 0
     foreach ($v in $validApiVersions) {
 
         $hasDate = $v -match "(?<Year>\d{4,4})-(?<Month>\d{2,2})-(?<Day>\d{2,2})"
@@ -102,16 +103,19 @@ foreach ($foundRef in $foundReferences) {
             # due to sorting, which is incorrect
             $recentApiVersions += "        $v`n"
         }
+        if ($v -like "$apiVersion") { # If this looks like the apiVersion,
+            $howOutOfDate = $n         # keep track of how out-of-date it is.
+        }
+        $n++
     }
-
-    $howOutOfDate = $validApiVersions.IndexOf($ApiVersion) # Find out how out of date we are.
+    
     # Is the apiVersion even in the list?
     if ($howOutOfDate -eq -1 -and $validApiVersions) {
         # Removing the error for this now - this is happening with the latest versions and outdated manifests
         # We can assume that if the version is indeed invalid, deployment will fail
-        Write-Error "$potentialResourceType is using an invalid apiVersion." -ErrorId ApiReference.Version.Not.Valid -TargetObject $foundRef
-        Write-Output "ApiVersion not found for: $fullResourceType and version $($av.apiVersion)" 
-        Write-Output "Valid Api Versions found:`n$recentApiVersions"
+        #Write-Error "$potentialResourceType is using an invalid apiVersion." -ErrorId ApiReference.Version.Not.Valid -TargetObject $foundRef
+        #Write-Output "ApiVersion not found for: $($foundRef.Value) and version $($av.apiVersion)" 
+        #Write-Output "Valid Api Versions found $potentialResourceType :`n$recentApiVersions"
     }
 
     if ($ApiVersion -like '*-*-*-*') {
@@ -119,8 +123,8 @@ foreach ($foundRef in $foundReferences) {
 
         $moreRecent = $validApiVersions[0..$howOutOfDate] # see if there's a more recent non-preview version. 
         if ($howOutOfDate -gt 0 -and $moreRecent -notlike '*-*-*-*') {
-            Write-Error "$FullResourceType uses a preview version ( $($apiVersion) ) and there are more recent versions available." -TargetObject $foundRef -ErrorId ApiReference.Version.Preview.Not.Recent
-            Write-Output "Valid Api Versions:`n$recentApiVersions"
+            Write-Error "$($foundRef.Value)  uses a preview version ( $($apiVersion) ) and there are more recent versions available." -TargetObject $foundRef -ErrorId ApiReference.Version.Preview.Not.Recent
+            Write-Output "Valid Api Versions $potentialResourceType :`n$recentApiVersions"
         }
 
         # the sorted array doesn't work perfectly so 2020-01-01-preview comes before 2020-01-01
@@ -131,8 +135,8 @@ foreach ($foundRef in $foundReferences) {
             # strip the qualifier on the apiVersion and see if it matches the next one in the sorted array
             $truncatedApiVersion = $($apiVersion).Substring(0, $($ApiVersion).LastIndexOf("-"))
             if ($nextApiVersion -eq $truncatedApiVersion){
-                Write-Error "$FullResourceType uses a preview version ( $($apiVersion) ) and there is a non-preview version for that apiVersion available." -TargetObject $foundRef -ErrorId ApiReference.Version.Preview.Version.Has.NonPreview
-                Write-Output "Valid Api Versions:`n$recentApiVersions"                
+                Write-Error "$($foundRef.Value) uses a preview version ( $($apiVersion) ) and there is a non-preview version for that apiVersion available." -TargetObject $foundRef -ErrorId ApiReference.Version.Preview.Version.Has.NonPreview
+                Write-Output "Valid Api Versions for $potentialResourceType :`n$recentApiVersions"                
             } 
         }     
     }
@@ -149,10 +153,13 @@ foreach ($foundRef in $foundReferences) {
         }
         if (-not $nonPreviewVersionInUse) {
             # If it's older than two years, and there's nothing more recent
-            Write-Error "Api versions must be the latest or under $($NumberOfDays / 365) years old ($NumberOfDays days) - API version $($ApiVersion) of $FullResourceType is $([Math]::Floor($timeSinceApi.TotalDays)) days old" -ErrorId ApiReference.Version.OutOfDate -TargetObject $foundRef
-            Write-Output "Valid Api Versions:`n$recentApiVersions"
+            Write-Error "Api versions must be the latest or under $($NumberOfDays / 365) years old ($NumberOfDays days) - API version used by:`n            $($foundRef.Value)`n        is $([Math]::Floor($timeSinceApi.TotalDays)) days old" -ErrorId ApiReference.Version.OutOfDate -TargetObject $foundRef
+            Write-Output "Valid Api Versions for $potentialResourceType :`n$recentApiVersions"
         }
     }
 
+    if(! $validApiVersions.Contains($apiVersion)){
+        Write-Warning "The apiVersion $($apiVersion) was not found for the resource type: $potentialResourceType"
+    }
 
 }
