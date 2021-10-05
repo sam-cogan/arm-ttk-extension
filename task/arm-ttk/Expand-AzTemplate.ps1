@@ -122,7 +122,7 @@ function Expand-AzTemplate
                     $preferredJsonFile = $TemplatePath |
                         Get-ChildItem -Filter *.json |
                         # for a file named azuredeploy.json, prereq.azuredeploy.json or mainTemplate.json
-                        Where-Object { 'azuredeploy.json', 'mainTemplate.json', 'prereq.azuredeploy.json' -contains $_.Name } |
+                        # Where-Object { 'azuredeploy.json', 'mainTemplate.json', 'prereq.azuredeploy.json' -contains $_.Name } |
                         Select-Object -First 1 -ExpandProperty Fullname
                     # If no file was found, write an error and return.
                     if (-not $preferredJsonFile) {
@@ -219,8 +219,8 @@ function Expand-AzTemplate
                     Where-Object { -not $_.PSIsContainer } |
                     ForEach-Object {
                         $fileInfo = $_
-                        if ($resolvedTemplatePath -like '*.json' -and -not $isMainTemplate -and 
-                            $fileInfo.FullName -ne $resolvedTemplatePath) { return }
+                        # if ($resolvedTemplatePath -like '*.json' -and -not $isMainTemplate -and 
+                        #     $fileInfo.FullName -ne $resolvedTemplatePath) { return }
 
                         if ($fileInfo.DirectoryName -eq '__macosx') {
                             return # (excluding files as side-effects of MAC zips)
