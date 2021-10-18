@@ -122,7 +122,7 @@ function Expand-AzTemplate
                     $preferredJsonFile = $TemplatePath |
                         Get-ChildItem -Filter *.json |
                         # for a file named azuredeploy.json, prereq.azuredeploy.json or mainTemplate.json
-                        # Where-Object { 'azuredeploy.json', 'mainTemplate.json', 'prereq.azuredeploy.json' -contains $_.Name } |
+                        #Where-Object { 'azuredeploy.json', 'mainTemplate.json', 'prereq.azuredeploy.json' -contains $_.Name } |
                         Select-Object -First 1 -ExpandProperty Fullname
                     # If no file was found, write an error and return.
                     if (-not $preferredJsonFile) {
