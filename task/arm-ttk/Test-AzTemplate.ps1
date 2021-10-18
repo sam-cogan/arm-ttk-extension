@@ -578,11 +578,11 @@ Each test script has access to a set of well-known variables:
         if ($PSCmdlet.ParameterSetName -eq 'NearbyTemplate') {
             # attempt to find one in the current directory and it's subdirectories
             $possibleJsonFiles = @(Get-ChildItem -Filter *.json -Recurse |
-                Sort-Object Name -Descending # (sort by name descending so that MainTemplate.json comes first).
+                Sort-Object Name -Descending #| # (sort by name descending so that MainTemplate.json comes first).
                 # Where-Object {
                 #     'azureDeploy.json', 'mainTemplate.json' -contains $_.Name
                 # }
-            )
+                )
 
 
             # If more than one template was found, warn which one we'll be testing.
