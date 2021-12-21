@@ -32,7 +32,7 @@ Function Export-NUnitXml {
     $TotalTime = [math]::Round($($TestResults.TimeSpan | measure-object -Property TotalSeconds -Sum).sum,4).toString()
     $Now = Get-Date
     $FormattedDate = Get-Date $Now -Format 'yyyy-MM-dd'
-    $FormattedTime = Get-Date $Now -Format 'T'
+    $FormattedTime = Get-Date $Now -Format 'HH:mm:ss'
     $User = $env:USERNAME
     $MachineName = $env:COMPUTERNAME
     $Cwd = $pwd.Path
