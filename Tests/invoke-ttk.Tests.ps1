@@ -28,7 +28,7 @@ Describe "File Test" {
 describe "Single File Tests" {
     BeforeAll{
     $testPath = "TestDrive:\"
-    $goodFile= "$here\testfiles\single-file\good-test.json"
+    $goodFile= "$herec"
     $badFile = "$here\testfiles\single-file\bad-test.json" 
     }
 
