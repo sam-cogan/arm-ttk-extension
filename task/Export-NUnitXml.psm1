@@ -29,7 +29,7 @@ Function Export-NUnitXml {
     # Setup variables
     $TotalNumber = If ($TestResults) { $TestResults.Count -as [string] } Else { '1' }
     $FailedNumber = If ($TestResults) { $($TestResults.passed | Where-Object { $_ -eq $false }).count -as [string] } Else { '0' }
-    $TotalTime = $($TestResults.TimeSpan | measure-object -Property TotalSeconds -Sum).sum.toString()
+    $TotalTime = [math]::Round($($TestResults.TimeSpan | measure-object -Property TotalSeconds -Sum).sum,4).toString()
     $Now = Get-Date
     $FormattedDate = Get-Date $Now -Format 'yyyy-MM-dd'
     $FormattedTime = Get-Date $Now -Format 'T'
@@ -95,14 +95,14 @@ Function Export-NUnitXml {
 
             if ($result.Passed) {
                 $TestCase = @"
-    <test-case description="$($result.name) in template file $directoryName\$fileName" name="$($result.name) - $fileName" time="$($result.timespan.toString())" asserts="0" success="True" result="Success" executed="True">
+    <test-case description="$($result.name) in template file $directoryName\$fileName" name="$($result.name) - $fileName" time="$([math]::Round($result.timespan.TotalSeconds,4).toString())" asserts="0" success="True" result="Success" executed="True">
     </test-case>`n
 "@
             }
             else {
                 $stacktrace = [System.Security.SecurityElement]::Escape($result.Errors.ScriptStackTrace)
                 $TestCase = @"
-    <test-case description="$($result.name) in template file $fileName" name="$($result.name) - $fileName" time="$($result.timespan.toString())" asserts="0" success="False" result="Failure" executed="True">
+    <test-case description="$($result.name) in template file $fileName" name="$($result.name) - $fileName" time="$([math]::Round($result.timespan.TotalSeconds,4).toString())" asserts="0" success="False" result="Failure" executed="True">
     <failure>
         <message><![CDATA[$($result.Errors.Exception)]]> in template file $fileName</message>
         <stack-trace><![CDATA[$stacktrace]]></stack-trace>
