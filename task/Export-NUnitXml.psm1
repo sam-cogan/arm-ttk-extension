@@ -29,6 +29,7 @@ Function Export-NUnitXml {
     # Setup variables
     $TotalNumber = If ($TestResults) { $TestResults.Count -as [string] } Else { '1' }
     $FailedNumber = If ($TestResults) { $($TestResults.passed | Where-Object { $_ -eq $false }).count -as [string] } Else { '0' }
+    $TotalTime = $($TestResults.TimeSpan | measure-object -Property TotalSeconds -Sum).sum.toString()
     $Now = Get-Date
     $FormattedDate = Get-Date $Now -Format 'yyyy-MM-dd'
     $FormattedTime = Get-Date $Now -Format 'T'
@@ -38,6 +39,7 @@ Function Export-NUnitXml {
     $UserDomain = $env:USERDOMAIN
     $CurrentCulture = (Get-Culture).Name
     $UICulture = (Get-UICulture).Name
+    $OSVersion = (Get-CimInstance Win32_OperatingSystem).version
 
     Switch ($FailedNumber) {
         0 { $TestResult = 'Success'; $TestSuccess = 'True'; Break }
@@ -68,9 +70,9 @@ Function Export-NUnitXml {
         $Header = @"
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
     <test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="ARMTTK" total="$TotalNumber" errors="0" failures="$FailedNumber" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="$FormattedDate" time="$FormattedTime">
-        <environment user="$User" machine-name="$MachineName" cwd="$Cwd" user-domain="$UserDomain" platform="$Platform" nunit-version="2.5.8.0"  />
+        <environment os-version="$OSVersion" user="$User" machine-name="$MachineName" cwd="$Cwd" user-domain="$UserDomain" platform="$Platform" nunit-version="2.5.8.0" clr-version="Unknown"  />
         <culture-info current-culture="$CurrentCulture" current-uiculture="$UICulture" />
-        <test-suite type="Powershell" name="ARMTTK" executed="True" result="$TestResult" success="$TestSuccess" time="0.0" asserts="0">
+        <test-suite type="Powershell" name="ARMTTK" executed="True" result="$TestResult" success="$TestSuccess" time="$TotalTime" asserts="0">
         <results>`n
 "@
         
@@ -81,7 +83,7 @@ Function Export-NUnitXml {
 "@
 
         $testHeader = @"
-    <test-suite type="TestFixture" name="$directoryName\$fileName" executed="True" result="$TestResult" success="$TestSuccess" time="0.0" asserts="0" description="ARMTTK tests for $fileName">
+    <test-suite type="TestFixture" name="$directoryName\$fileName" executed="True" result="$TestResult" success="$TestSuccess" time="$TotalTime" asserts="0" description="ARMTTK tests for $fileName">
     <results>`n
 "@
 
