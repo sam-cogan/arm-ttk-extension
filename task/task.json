@@ -10,8 +10,8 @@
     "author": "Sam Cogan",
     "version": {
       "Major": 1,
-      "Minor": 4,
-      "Patch": 2
+      "Minor": 5,
+      "Patch": 1
     },
     "instanceNameFormat": "Run Azure RM TTK Tests",
 
@@ -22,6 +22,14 @@
         "required": true,
         "helpMarkDown": "Folder containing templates, or individual template to test",
         "defaultValue": "$(System.DefaultWorkingDirectory)\\*"
+      },
+      {
+        "name": "recurse",
+        "type": "boolean",
+        "label": "Recurse Template Location",
+        "required": false,
+        "helpMarkDown": "Recurse through all folders undeneath template location",
+        "defaultValue": true
       },
       {
         "name": "resultLocation",

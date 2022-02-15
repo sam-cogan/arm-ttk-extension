@@ -13,6 +13,7 @@ $mainTemplateString = get-VstsInput -Name mainTemplates
 [boolean]$allTemplatesAreMain = get-VstsInput -Name allTemplatesMain -AsBool
 [boolean]$cliOutputResults = get-VstsInput -Name cliOutputResults -AsBool
 [boolean]$ignoreExitCode = get-VstsInput -Name ignoreExitCode -AsBool
+[boolean]$recurse = get-VstsInput -Name recurse -AsBool
 
 if($TestString){
     $Test=$TestString.split(',').trim()
@@ -36,4 +37,4 @@ else{
 }
 
 
-Invoke-TTK -templatelocation $templatelocation  -resultlocation $resultlocation -Test $Test -Skip $Skip -mainTemplates $mainTemplates -allTemplatesAreMain $allTemplatesAreMain -cliOutputResults $cliOutputResults -ignoreExitCode $ignoreExitCode
+Invoke-TTK -templatelocation $templatelocation  -resultlocation $resultlocation -Test $Test -Skip $Skip -mainTemplates $mainTemplates -allTemplatesAreMain $allTemplatesAreMain -cliOutputResults $cliOutputResults -ignoreExitCode $ignoreExitCode -recurse $recurse
