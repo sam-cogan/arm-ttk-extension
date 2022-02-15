@@ -55,7 +55,10 @@ Function Invoke-TTK {
         # Whether to provide summary outputs at the CLI
         [boolean]$cliOutputResults = $false,
         # Whether to ignore exit code and always pass task
-        [boolean]$ignoreExitCode = $false
+        [boolean]$ignoreExitCode = $false,
+        # Whether to check all subfolders of template path for arm/bicep files
+        # Defaults to true to preserve backwards compatability
+        [boolean]$recurse = $true
 
     )
 
@@ -75,8 +78,12 @@ Function Invoke-TTK {
         $templatelocation = "$($templatelocation.Trimend('\'))\*"
     }
 
-
-    $bicepFiles = Get-ChildItem $templatelocation -include "*.bicep" -Recurse
+    if($recurse){
+        $bicepFiles = Get-ChildItem $templatelocation -include "*.bicep" -Recurse
+    }
+    else{
+        $bicepFiles = Get-ChildItem $templatelocation -include "*.bicep" 
+    }
 
     if($bicepFiles.count -gt 0){
         if ((Get-Command "bicep.exe" -ErrorAction SilentlyContinue) -eq $null -and (Get-Command "$PSScriptRoot\bicep.exe" -ErrorAction SilentlyContinue) -eq $null) {
@@ -88,7 +95,13 @@ Function Invoke-TTK {
         }
     }
 
-    $files = Get-ChildItem $templatelocation -include "*.json", "*.jsonc" -Recurse
+    if($recurse){
+        $files = Get-ChildItem $templatelocation -include "*.json", "*.jsonc" -Recurse
+    }
+    else{
+        $files = Get-ChildItem $templatelocation -include "*.json", "*.jsonc"
+    }
+
     $totalFileCount = $files.count
 
     if ($totalFileCount -lt 1) {

@@ -184,3 +184,24 @@ describe "bicep file tests"{
     }
 
 }
+
+describe "Recursing"{
+       BeforeAll{
+    $testPath = "TestDrive:\"
+    }
+
+
+    it "only runs test in top level folder"{
+        
+        Invoke-TTK -templatelocation "$here\testfiles\recurse"  -resultlocation $testPath -recurse $false
+        $(Get-ChildItem $testPath).count |  should -be 1
+      
+    }
+
+     it "runs all tests"{
+        
+        Invoke-TTK -templatelocation "$here\testfiles\recurse"  -resultlocation $testPath -recurse $true
+        $(Get-ChildItem $testPath).count |  should -be 2
+      
+    }
+}
