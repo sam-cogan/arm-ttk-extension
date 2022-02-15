@@ -30,7 +30,7 @@
         "required": false,
         "helpMarkDown": "Recurse through all folders undeneath template location",
         "defaultValue": true
-      }
+      },
       {
         "name": "resultLocation",
         "type": "string",
