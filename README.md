@@ -2,6 +2,8 @@
 
 ![CI](https://github.com/sam-cogan/arm-ttk-extension/workflows/CI/badge.svg)
 
+**A new Cross-Platform version of this extension is now availiable [here](https://marketplace.visualstudio.com/items?itemName=Sam-Cogan.ARMTTKExtensionXPlatform), which supports Windows and Linux build agents. I reccomend you switch to this version when possible. The old and new extensions will run side-by-side so you can transition easily. Updates for the Windows only extension will continue for a while, but it will be deprecated eventually. Questions and issue with the cross platform extension can be raised [here](https://github.com/sam-cogan/arm-ttk-extension-xplatform)**
+
 An Azure DevOps Extension for running Azure Resource Manager Template Tool Kit tests as part of your build or release pipeline.
 
 Currently this extension can only be used on Windows build agents.
@@ -29,11 +31,14 @@ This extension expects two parameters
 
 You can also provide these optional parameters:
 
-1. A comma seperated list of test to run, if you provide this list then only the tests provided will be run, all other tests will be skipped. Leave blank to run all tests. If the test names are incorrect then all tests will run. The full list of test case names can be foun in the ARMTTK [here](https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate).
-2. A comma seperated list tests to skip, all other tests will be run. Leave blank to run all tests. The full list of test case names can be foun in the ARMTTK [here](https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate).
-3. A comma separated list of files to treat as the "main template" for the purpose of tests that require this, such as the "Location must not be hardcoded" test.
-4. A boolean to indicate whether to treat all templates as the "main template" for the purpose of tests that require this, such as the "Location must not be hardcoded" test - defaults to false
-5. A boolean to output additional test result summary to the Azure DevOps CLI - defaults to false
+1. A comma-separated list of tests to run, if you provide this list, only the tests provided will be run, and all other tests will be skipped. Leave blank to run all tests. If the test names are incorrect, then all tests will run. The complete list of test case names can be found in the ARMTTK [here](https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate).
+2. A comma-separated list of tests to skip, all other tests will be run. Leave blank to run all tests. The complete list of test case names can be found in the ARMTTK [here](https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate).
+3. A comma-separated list of files to treat as the "main template" for the purpose of tests that require this, such as the "Location must not be hardcoded" test.
+4. A boolean to indicate whether to treat all templates as the "main template" for the purpose of tests that require this, such as the "Location must not be hardcoded" test - defaults to false.
+5. A boolean to output additional test result summary to the Azure DevOps CLI - defaults to false.
+6. A boolean to indicate whether we should recurse through subfolders to find files to test - defaults to true
+7. A boolean to indicate whether we should ignore the exit code of the tests and so not fail the build on a failed test (advanced section)
+8. A boolean to indicate whether we should use PowerShell Core on Windows machines. On Linux, PowerShell core will always be used (advanced section)
 
 ```yaml
 - task: RunARMTTKTests@1
@@ -45,6 +50,9 @@ You can also provide these optional parameters:
     mainTemplates: 'template1.json, template2.json'
     allTemplatesMain: false
     cliOutputResults: true
+    recurse: true
+    ignoreExitCode: false
+    usePSCore: true
 ```
 
 ### Test Results
