@@ -146,8 +146,8 @@ function Expand-AzTemplate
                 'MainTemplatePath', 'MainTemplateObject', 'MainTemplateText',
                 'MainTemplateResources','MainTemplateVariables','MainTemplateParameters', 'MainTemplateOutputs', 'TemplateMetadata',
                 'isParametersFile', 'ParameterFileName', 'ParameterObject', 'ParameterText',
-                'InnerTemplates', 'ParentTemplateText', 'ParentTemplateObject',
-                'ExpandedTemplateText', 'ExpandedTemplateObject'
+                'InnerTemplates', 'InnerTemplatesText', 'InnerTemplatesNames','InnerTemplatesLocations','ParentTemplateText', 'ParentTemplateObject',
+                'ExpandedTemplateText', 'ExpandedTemplateObject','OriginalTemplateText','OriginalTemplateObject'
 
             foreach ($_ in $WellKnownVariables) {
                 $ExecutionContext.SessionState.PSVariable.Set($_, $null)
@@ -199,8 +199,11 @@ function Expand-AzTemplate
                 $templateFile =  $TemplateText = $templateObject = $TemplateFullPath = $templateFileName = $null
             } else {
                 #*$CreateUIDefinitionFullPath (the path to CreateUIDefinition.json)
-                $createUiDefinitionFullPath = Join-Path -childPath 'createUiDefinition.json' -Path $templateFolder
-                if (Test-Path $createUiDefinitionFullPath) {
+                $createUiDefinitionFullPath = 
+                    Get-ChildItem -Path $templateFolder | 
+                    Where-Object Name -eq 'createUiDefinition.json' | 
+                    Select-Object -ExpandProperty FullName
+                if ($createUiDefinitionFullPath -and (Test-Path $createUiDefinitionFullPath)) {
                     #*$CreateUIDefinitionText (the text contents of CreateUIDefinition.json)
                     $createUIDefinitionText = [IO.File]::ReadAllText($createUiDefinitionFullPath)
                     #*$CreateUIDefinitionObject (the createuidefinition text, converted from json)
@@ -219,8 +222,8 @@ function Expand-AzTemplate
                     Where-Object { -not $_.PSIsContainer } |
                     ForEach-Object {
                         $fileInfo = $_
-                        # if ($resolvedTemplatePath -like '*.json' -and -not $isMainTemplate -and 
-                        #     $fileInfo.FullName -ne $resolvedTemplatePath) { return }
+                        if ($resolvedTemplatePath -like '*.json' -and -not $isMainTemplate -and 
+                            $fileInfo.FullName -ne $resolvedTemplatePath) { return }
 
                         if ($fileInfo.DirectoryName -eq '__macosx') {
                             return # (excluding files as side-effects of MAC zips)
@@ -236,10 +239,36 @@ function Expand-AzTemplate
                                 FullPath = $fileInfo.Fullname#*FullPath (the full path to the file)
                             }
                             # If the file is JSON, two additional properties may be present:
-                            #*Object (the file's text, converted from JSON)
+                            #* Object (the file's text, converted from JSON)
                             $fileObject.Object = Import-Json $fileObject.FullPath
-                            #*Schema (the value of the $schema property of the JSON object, if present)
+                            #* Schema (the value of the $schema property of the JSON object, if present)
                             $fileObject.schema = $fileObject.Object.'$schema'
+                            #* InnerTemplates (any inner templates found within the object)
+                            $fileObject.InnerTemplates = @(if ($fileObject.Text -and $fileObject.Text.Contains('"template"')) {
+                                Find-JsonContent -InputObject $fileObject.Object -Key template |
+                                    Where-Object { $_.expressionEvaluationOptions.scope -eq 'inner' -or $_.jsonPath -like '*.policyRule.*' } |
+                                    Sort-Object JSONPath -Descending
+                            })                            
+                            #* InnerTemplatesText     (an array of the text of each inner template)
+                            $fileObject.InnerTemplatesText = @()
+                            #* InnerTemplateNames     (an array of the name of each inner template)
+                            $fileObject.InnerTemplatesNames = @()
+                            #* InnerTemplateLocations (an array of the resolved locations of each inner template)
+                            $fileObject.InnerTemplatesLocations = @()
+                            if ($fileObject.innerTemplates) {
+                                $anyProblems = $false                                
+                                foreach ($it in $fileObject.innerTemplates) {
+                                    $foundInnerTemplate = $it | Resolve-JSONContent -JsonText $fileObject.Text
+                                    if (-not $foundInnerTemplate) { $anyProblems = $true; continue }
+                                    $fileObject.InnerTemplatesText += $foundInnerTemplate.Content -replace '^\s{0,}"template"\s{0,}\:\s{0,}'
+                                    $fileObject.InnerTemplatesNames += $it.ParentObject[0].Name
+                                    $fileObject.InnerTemplatesLocations += $foundInnerTemplate
+                                }
+                                
+                                if ($anyProblems) {
+                                    Write-Error "Could not extract inner templates for '$TemplatePath'." -ErrorId InnerTemplate.Extraction.Error
+                                }
+                            }
                             $fileObject
                         }
 
@@ -296,12 +325,16 @@ function Expand-AzTemplate
                     Sort-Object JSONPath -Descending
             })
 
+            $innerTemplatesText =@()
+
             if ($innerTemplates) {
                 $anyProblems = $false
                 $originalTemplateText = "$TemplateText"
+                $OriginalTemplateObject = $TemplateObject
                 foreach ($it in $innerTemplates) {
                     $foundInnerTemplate = $it | Resolve-JSONContent -JsonText $TemplateText
                     if (-not $foundInnerTemplate) { $anyProblems = $true; break }
+                    $innerTemplatesText += $foundInnerTemplate.Content -replace '"template"\s{0,}\:\s{0,}'
                     $TemplateText = $TemplateText.Remove($foundInnerTemplate.Index, $foundInnerTemplate.Length)
                     $TemplateText = $TemplateText.Insert($foundInnerTemplate.Index, '"template": {}')
                 }
@@ -311,6 +344,9 @@ function Expand-AzTemplate
                 } else {
                     Write-Error "Could not extract inner templates for '$TemplatePath'." -ErrorId InnerTemplate.Extraction.Error
                 }
+            } else {
+                $originalTemplateText = $TemplateText
+                $OriginalTemplateObject = $TemplateObject   
             }
             
             
@@ -332,9 +368,13 @@ function Expand-AzTemplate
                         }
                         return "'$("$v".Replace("'","\'"))'"
                     } else {
-                        if ("$templateVariableValue".StartsWith('[')) {
-                            if ("$templateVariableValue".EndsWith(']')) {
-                                return "$templateVariableValue" -replace '^\[' -replace '\]$'
+                        if ($templateVariableValue -isnot [string]) { # If the value is not a string                            
+                            return "json('$(($templateVariableValue | ConvertTo-Json -Depth 100 -Compress) -replace '\\u0027b', "'" -replace '"','\"'))'"
+                            # make it JSON
+                        }
+                        if ("$templateVariableValue".StartsWith('[')) { # If the value is a subexpression
+                            if ("$templateVariableValue".EndsWith(']')) { 
+                                return "$templateVariableValue" -replace '^\[' -replace '\]$' -replace '"', '\"' # Escape the brackets and quotes
                             } else {
                                 return $templateVariableValue
                             }

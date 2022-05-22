@@ -1,4 +1,4 @@
-﻿function Test-AzTemplate
+function Test-AzTemplate
 {
     [Alias('Test-AzureRMTemplate')] # Added for backward compat with MP
     <#
@@ -31,9 +31,9 @@ Each test script has access to a set of well-known variables:
 * MainTemplateVariables (a hashtable containing the variables found in the main template)
 * MainTemplateOutputs (a hashtable containing the outputs found in the main template)
 * InnerTemplates (indicates if the template contained or was in inner templates)
+* IsInnerTemplate (indicates if currently testing an inner template)
 * ExpandedTemplateText (the text of a template, with variables expanded)
 * ExpandedTemplateOjbect (the object of a template, with variables expanded)
-* InnerTemplates (indicates if the template contained or was in inner templates
 
     .Example
         Test-AzTemplate -TemplatePath ./FolderWithATemplate
@@ -227,7 +227,10 @@ Each test script has access to a set of well-known variables:
                 } else {
                     return
                 }
-            $testInput = @{} + $TestParameters
+
+            $parentTemplateText = $testInput.TemplateText
+            $testInput = @{IsInnerTemplate=$false} + $TestParameters
+            $IsInnerTemplate = $false
 
             foreach ($k in @($testInput.Keys)) {
                 if (-not $testCommandParameters.ContainsKey($k)) {
@@ -251,40 +254,55 @@ Each test script has access to a set of well-known variables:
                     . $myModule $TheTest @testInput
                 }
 
-                if ($TestParameters.InnerTemplates.Count) { # If an ARM template has inner templates
+                if ($TestParameters.InnerTemplates.Count) { # If an ARM template has inner templates                    
+                    $isInnerTemplate = $testInput['IsInnerTemplate'] = $true
+                    if (-not $testCommandParameters.ContainsKey('IsInnerTemplate')) {
+                        $testInput.Remove('IsInnerTemplate')
+                    }
+                    $innerTemplateNumber = 0
                     foreach ($innerTemplate in $testParameters.InnerTemplates) {
-                        $foundInnerTemplate = $innerTemplate | Resolve-JSONContent -JsonText $ParentTemplateText
+                        
                         $usedParameters = $false
                         # Map TemplateText to the inner template text by converting to JSON (if the test command uses -TemplateText)
                         if ($testCommandParameters.ContainsKey("TemplateText")) { 
-                            $templateText   = $testInput['TemplateText']   = 
-                                $ParentTemplateText.Substring($foundInnerTemplate.Index, $foundInnerTemplate.Length) -replace 
-                                    '^[''"\w]+\s{0,}\:' # Clip the name of the property the template was embedded within, so $templateText is valid JSON
+                            $templateText   = $testInput['TemplateText']   = $TestParameters.InnerTemplatesText[$innerTemplateNumber]
                             $usedParameters = $true
                         }
                         # And Map TemplateObject to the converted json (if the test command uses -TemplateObject)
                         if ($testCommandParameters.ContainsKey("TemplateObject")) { 
-                            $templateObject = $testInput['TemplateObject'] = $innerTemplate.template
+                            $templateObject = $testInput['TemplateObject'] = $innerTemplate.template                            
                             $usedParameters = $true
                         }
 
                         if ($usedParameters) {
                             if (-not $Pester) {
+                                $itn = 
+                                    if ($TestParameters.InnerTemplatesNames) {
+                                        $TestParameters.InnerTemplatesNames[$innerTemplateNumber]
+                                    } else { ''}
+                                
+                                $itl =
+                                    if ($TestParameters.InnerTemplatesLocations){
+                                        $testParameters.InnerTemplatesLocations[$innerTemplateNumber]
+                                    } else { '' }
                                 . $myModule $TheTest @testInput 2>&1 3>&1 | # Run the test, and add data about the inner template context it was in.
-                                    Add-Member NoteProperty InnerTemplateName $innerTemplate.ParentObject[0].Name -Force -PassThru |
-                                    Add-Member NoteProperty InnerTemplateStart $foundInnerTemplate.Index -Force -PassThru |
-                                    Add-Member NoteProperty InnerTemplateLength $foundInnerTemplate.Length -Force -PassThru
+                                    Add-Member NoteProperty InnerTemplateName $itn -Force -PassThru |
+                                    Add-Member NoteProperty InnerTemplateStart $itl.index -Force -PassThru |
+                                    Add-Member NoteProperty InnerTemplateLocation $itl  -Force -PassThru |
+                                    Add-Member NoteProperty InnerTemplateInput (@{} + $testInput) -Force -PassThru |
+                                    Add-Member NoteProperty InnerTemplateText $templateText -Force -PassThru
                             } else {
                                 . $myModule $TheTest @testInput
                             }           
                         }
+                        $innerTemplateNumber++
                     }
                 }
             } while ($false)
         }
 
         #*Test-Group (executes a group of tests)
-        function Test-Group {
+        function Test-Group {            
             $testQueue = [Collections.Queue]::new(@($GroupName))
             :nextTestInGroup while ($testQueue.Count) {
                 $dq = $testQueue.Dequeue()
@@ -313,97 +331,140 @@ Each test script has access to a set of well-known variables:
                     $testCaseOutput = Test-Case $testCase.$dq $TestInput 2>&1 3>&1
                     $testTook = [DateTime]::Now - $testStartedAt
 
-                    $testErrors = [Collections.ArrayList]::new()
-                    $testWarnings = [Collections.ArrayList]::new()
-                    $testOutput = [Collections.ArrayList]::new()
-                    $testIssueLocations = [Collections.ArrayList]::new()
+                                        
                     $InnerTemplateStartLine = 0
                     $InnerTemplateEndLine   = 0
-                    $innerGroup = 
-                        if ($testCaseOutput.InnerTemplateStart) {
-                            $innerTemplateStartIndex = ($($testCaseOutput | Select-Object -First 1).InnerTemplateStart) -as [int]
-                            $innerTemplateLength     = ($($testCaseOutput | Select-Object -First 1).InnerTemplateLength) -as [int]
-                            $InnerTemplateStartLine = 
-                                    [Regex]::new('(?>\r\n|\n|\A)', 'RightToLeft').Matches(
-                                        $parentTemplateText, $innerTemplateStartIndex
-                                    ).Count
-                            $InnerTemplateEndLine = 
-                                    [Regex]::new('(?>\r\n|\n|\A)', 'RightToLeft').Matches(
-                                        $parentTemplateText, $innerTemplateStartIndex + $innerTemplateLength
-                                    ).Count
-
-                            "NestedTemplate $($testCaseOutput.InnerTemplateName) [ Lines $InnerTemplateStartLine - $InnerTemplateEndLine ]"
-                        } else {''}
-
-                    $displayGroup = if ($innerGroup) { $innerGroup } else { $GroupName } 
-
-
-                    $null= foreach ($testOut in $testCaseOutput) {                        
-                        if ($testOut -is [Exception] -or $testOut -is [Management.Automation.ErrorRecord]) {
-                            $testErrors.Add($testOut)
-                            if ($testOut.TargetObject -is [Text.RegularExpressions.Match]) {
-                                $wholeText = $testOut.TargetObject.Result('$_')
-                                $lineNumber = 
-                                    [Regex]::new('(?>\r\n|\n|\A)', 'RightToLeft').Matches(
-                                        $wholeText, $testOut.TargetObject.Index
-                                    ).Count + $(if ($InnerTemplateStartLine) { $InnerTemplateStartLine - 1 })
-
-                                $columnNumber = 
-                                    $testOut.TargetObject.Index -
-                                    $(
-                                        $m = [Regex]::new('(?>\r\n|\n|\A)', 'RightToLeft').Match(
-                                            $wholeText, $testOut.TargetObject.Index)
-                                        $m.Index + $m.Length
-                                    ) + 1
-                                $testOut | Add-Member NoteProperty Location ([PSCustomObject]@{Line=$lineNumber;Column=$columnNumber;Index=$testOut.TargetObject.Index;Length=$testOut.TargetObject.Length}) -Force
+                    
+                    $outputByInnerTemplate = $testCaseOutput | 
+                        Group-Object InnerTemplateName | 
+                        Sort-Object { $($_.Group.InnerTemplateStart) }
+                    if (-not $outputByInnerTemplate) {
+                        # If there's no output, the test has passed.
+                        $script:PassFailTotalPerRun.Total++ # update the totals
+                        $script:PassFailTotalPerRun.Pass++
+                        [PSCustomObject][Ordered]@{         # And output the object
+                            pstypename = 'Template.Validation.Test.Result'
+                            Errors = @()
+                            Warnings = @()
+                            Output = @()
+                            AllOutput = $testCaseOutput
+                            Passed = $true
+                            Group = $dq                        
+                            Name = $dq
+                            Timespan = $testTook
+                            File = $fileInfo
+                            TestInput = @{} + $TestInput
+                            Summary = if ($isLastFile -and -not $testQueue.Count) {
+                                [PSCustomObject]$script:PassFailTotalPerRun    
                             }
-                            elseif ($testOut.TargetObject.PSTypeName -eq 'JSON.Content') {                                
-                                
-                                $location = 
-                                    if ($GroupName -eq 'CreateUIDefinition') {                                        
-                                        Resolve-JSONContent -JSONPath $testOut.TargetObject.JSONPath -JSONText $createUIDefinitionText                                       
-                                    } elseif ($GroupName -eq 'DeploymentParameters') {
-                                        Resolve-JSONContent -JSONPath $testOut.TargetObject.JSONPath -JSONText $parameterText                                        
-                                    } else {
-                                        $resolvedLocation = Resolve-JSONContent -JSONPath $testOut.TargetObject.JSONPath -JSONText $parameterText
-                                        $resolvedLocation.Line += $(if ($InnerTemplateStartLine) { $InnerTemplateStartLine - 1 })
-                                        $resolvedLocation
+                        }
+                        continue nextTestInGroup
+                    }
+                    foreach ($testOutputGroup in $outputByInnerTemplate) {
+                        $testErrors = [Collections.ArrayList]::new()
+                        $testWarnings = [Collections.ArrayList]::new()
+                        $testOutput = [Collections.ArrayList]::new()
+
+                        $innerGroup = 
+                            if ($testOutputGroup.Group.InnerTemplateStart) {
+                                $innerTemplateStartIndex = ($($testOutputGroup.Group | Where-Object InnerTemplateStart | Select-Object -First 1).InnerTemplateStart) -as [int]
+                                $innerTemplateLength     = ($($testOutputGroup.Group | Where-Object InnerTemplateEnd | Select-Object -First 1).InnerTemplateLength) -as [int]
+                                    try {
+                                        $InnerTemplateStartLine = 
+                                                [Regex]::new('(?>\r\n|\n|\A)', 'RightToLeft').Matches(
+                                                    $parentTemplateText, $innerTemplateStartIndex
+                                                ).Count
+                                        $InnerTemplateEndLine = 
+                                                $InnerTemplateStartLine - 1 + [Regex]::new('(?>\r\n|\n|\A)', 'RightToLeft').Matches(
+                                                    $testInput.TemplateText, $testInput.TemplateText.Length - 1
+                                                ).Count
+                                    } catch {
+                                        $ex = $_
+                                        Write-Error "Error Isolating Nested Template Lines in $templateFileName " -TargetObject $ex
+                                    }
+                                " NestedTemplate $($testOutputGroup.Name) [ Lines $InnerTemplateStartLine - $InnerTemplateEndLine ]"
+                            } else {''}
+                        $displayGroup = if ($innerGroup) { $innerGroup } else { $GroupName }
+                        $null= foreach ($testOut in $testOutputGroup.Group) {
+                            if ($testOut -is [Exception] -or $testOut -is [Management.Automation.ErrorRecord]) {
+                                $testErrors.Add($testOut)
+                                if ($testOut.TargetObject -is [Text.RegularExpressions.Match]) {
+                                    $wholeText = $testOut.TargetObject.Result('$_')
+                                    $lineNumber = 
+                                        [Regex]::new('(?>\r\n|\n|\A)', 'RightToLeft').Matches(
+                                            $wholeText, $testOut.TargetObject.Index
+                                        ).Count + $(if ($InnerTemplateStartLine) { $InnerTemplateStartLine - 1 })
+
+                                    $columnNumber = 
+                                        $testOut.TargetObject.Index -
+                                        $(
+                                            $m = [Regex]::new('(?>\r\n|\n|\A)', 'RightToLeft').Match(
+                                                $wholeText, $testOut.TargetObject.Index)
+                                            $m.Index + $m.Length
+                                        ) + 1
+                                    $testOut | Add-Member NoteProperty Location ([PSCustomObject]@{Line=$lineNumber;Column=$columnNumber;Index=$testOut.TargetObject.Index;Length=$testOut.TargetObject.Length}) -Force
+                                }
+                                elseif ($testOut.TargetObject.PSTypeName -eq 'JSON.Content' -or $testOut.TargetObject.JSONPath) {
+                                    $jsonPath = "$($testOut.TargetObject.JSONPath)".Trim()
+                                    $location = 
+                                        if ($GroupName -eq 'CreateUIDefinition') {                                                         
+                                            Resolve-JSONContent -JSONPath $jsonPath -JSONText $createUIDefinitionText
+                                        } elseif ($GroupName -eq 'DeploymentParameters') {
+                                            Resolve-JSONContent -JSONPath $jsonPath -JSONText $parameterText
+                                        } elseif ($testOut.InnerTemplateLocation) {                                            
+                                            Resolve-JSONContent -JSONPath $jsonPath -JSONText $testOut.InnerTemplateText                                            
+                                        } else {
+                                            $resolvedLocation = Resolve-JSONContent -JSONPath $jsonPath -JSONText $TemplateText
+                                            if (-not $resolvedLocation) {
+                                                Write-Verbose "Unable to Resolve location in $($jsonPath) in $($fileInfo.Name)"
+                                            } else {
+                                                $resolvedLocation.Line += $(if ($InnerTemplateStartLine) { $InnerTemplateStartLine - 1 })
+                                                $resolvedLocation
+                                            }
+                                        }
+
+                                    if ($testOut.InnerTemplateLocation) {
+                                        $location.Line += $testOut.InnerTemplateLocation.Line - 1
                                     }
 
-                                $testOut | Add-Member NoteProperty Location $location -Force
+                                    $testOut | Add-Member NoteProperty Location $location -Force
+                                }
+                            }
+                            elseif ($testOut -is [Management.Automation.WarningRecord]) {
+                                $testWarnings.Add($testOut)
+                            } else {
+                                $testOutput.Add($testOut)
                             }
                         }
-                        elseif ($testOut -is [Management.Automation.WarningRecord]) {
-                            $testWarnings.Add($testOut)
+                    
+                        $script:PassFailTotalPerRun.Total++
+                        if ($testErrors.Count -lt 1) {
+                            $script:PassFailTotalPerRun.Pass++
                         } else {
-                            $testOutput.Add($testOut)
+                            $script:PassFailTotalPerRun.Fail++
                         }
-                    }
 
-                    $script:PassFailTotalPerRun.Total++
-                    if ($testErrors.Count -lt 1) {
-                        $script:PassFailTotalPerRun.Pass++
-                    } else {
-                        $script:PassFailTotalPerRun.Fail++
-                    }
-
-                    [PSCustomObject][Ordered]@{
-                        pstypename = 'Template.Validation.Test.Result'
-                        Errors = $testErrors
-                        Warnings = $testWarnings
-                        Output = $testOutput
-                        AllOutput = $testCaseOutput
-                        Passed = $testErrors.Count -lt 1
-                        Group = $displayGroup
+                        [PSCustomObject][Ordered]@{
+                            pstypename = 'Template.Validation.Test.Result'
+                            Errors = $testErrors
+                            Warnings = $testWarnings
+                            Output = $testOutput
+                            AllOutput = $testOutputGroup.Group
+                            Passed = $testErrors.Count -lt 1
+                            Group = $displayGroup
                         
-                        Name = $dq
-                        Timespan = $testTook
-                        File = $fileInfo
-                        TestInput = @{} + $TestInput
-                        Summary = if ($isLastFile -and -not $testQueue.Count) {
-                            [PSCustomObject]$script:PassFailTotalPerRun    
+                            Name = $dq
+                            Timespan = $testTook
+                            File = $fileInfo
+                            TestInput = @{} + $TestInput
+                            Summary = if ($isLastFile -and -not $testQueue.Count) {
+                                [PSCustomObject]$script:PassFailTotalPerRun    
+                            }
                         }
                     }
+                    
+
+                    
                 } else {
                     it $dq {
                         # Pester tests only fail on a terminating error,
@@ -425,6 +486,10 @@ Each test script has access to a set of well-known variables:
         function Test-FileList {
             $lastFile = $FolderFiles[-1]
             $isFirstFile = $true                        
+            $mainInnerTemplates = $InnerTemplates
+            $mainInnerTemplatesText = $InnerTemplatesText
+            $MainInnerTemplatesNames = $InnerTemplatesNames
+            $MainInnerTemplatesLocations = $innerTemplatesLocations
             foreach ($fileInfo in $FolderFiles) { # We loop over each file in the folder.
                 $isLastFile = $fileInfo -eq $lastFile
                 $matchingGroups =
@@ -499,6 +564,17 @@ Each test script has access to a set of well-known variables:
                     $templateFileName = $fileInfo.Name                    
                     $TemplateObject = $fileInfo.Object
                     $TemplateText = $fileInfo.Text
+                    if ($fileInfo.InnerTemplates) {
+                        $InnerTemplates          = $fileInfo.InnerTemplates
+                        $InnerTemplatesText      = $fileInfo.InnerTemplatesText
+                        $InnerTemplatesNames     = $fileInfo.InnerTemplatesNames
+                        $innerTemplatesLocations = $fileInfo.InnerTemplatesLocations
+                    } else {
+                        $InnerTemplates = $mainInnerTemplates
+                        $InnerTemplatesText = $mainInnerTemplatesText
+                        $InnerTemplatesNames = $MainInnerTemplatesNames
+                        $innerTemplatesLocations = $MainInnerTemplatesLocations
+                    }
                     if ($InnerTemplates.Count) {
                         $anyProblems = $false
                             foreach ($it in $innerTemplates) {
@@ -578,11 +654,7 @@ Each test script has access to a set of well-known variables:
         if ($PSCmdlet.ParameterSetName -eq 'NearbyTemplate') {
             # attempt to find one in the current directory and it's subdirectories
             $possibleJsonFiles = @(Get-ChildItem -Filter *.json -Recurse |
-                Sort-Object Name -Descending #| # (sort by name descending so that MainTemplate.json comes first).
-                # Where-Object {
-                #     'azureDeploy.json', 'mainTemplate.json' -contains $_.Name
-                # }
-                )
+                Sort-Object Name -Descending )
 
 
             # If more than one template was found, warn which one we'll be testing.

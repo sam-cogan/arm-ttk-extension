@@ -11,10 +11,10 @@ function Test-FolderContents {
     
     #Path is always set to folder due to limitation of ARMTTK, filter then picks file(s) or full folder to test
     if ($mainTemplate) {
-        $results = Test-AzTemplate -TemplatePath $folder -File $filter -Skip $Skip -Test $Test -mainTemplate $filter -ErrorAction  Continue
+        $results = Test-AzTemplate -TemplatePath "$folder\$filter" -Skip $Skip -Test $Test -mainTemplate $filter -ErrorAction  Continue
     }
     else {
-        $results = Test-AzTemplate -TemplatePath $folder -File $filter -Skip $Skip -Test $Test -ErrorAction Continue
+        $results = Test-AzTemplate -TemplatePath "$folder\$filter" -Skip $Skip -Test $Test -ErrorAction Continue
     }
     if ($createResultsFiles) {
         Export-NUnitXml -TestResults $results -Path $resultlocation
@@ -85,7 +85,7 @@ Function Invoke-TTK {
         $bicepFiles = Get-ChildItem $templatelocation -include "*.bicep" 
     }
 
-    if($bicepFiles.count -gt 0){
+      if($bicepFiles.count -gt 0){
         if ((Get-Command "bicep.exe" -ErrorAction SilentlyContinue) -eq $null -and (Get-Command "$PSScriptRoot\bicep.exe" -ErrorAction SilentlyContinue) -eq $null) {
         write-Host "Bicep Not Found, Downloading..."
         (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe", "$PSScriptRoot\bicep.exe")
