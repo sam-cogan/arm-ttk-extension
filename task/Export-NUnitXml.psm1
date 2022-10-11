@@ -131,7 +131,7 @@ Function Export-NUnitXml {
             Throw "There was an problem when attempting to cast the output to XML : $($_.Exception.Message)"
         }
 
-        $hash = Get-FileHash -Path $testFile -Algorithm MD5
-        $NunitXml | Out-File -FilePath "$Path\$($(get-item $testFile).basename)-$($hash.Hash)-armttk.xml" -Encoding utf8 -Force
+        $guid = New-Guid
+        $NunitXml | Out-File -FilePath "$Path\$($(get-item $testFile).basename)-$($guid)-armttk.xml" -Encoding utf8 -Force
     }
 }
