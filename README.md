@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/sam-cogan/arm-ttk-extension/workflows/CI/badge.svg)
 
-**A new Cross-Platform version of this extension is now availiable [here](https://marketplace.visualstudio.com/items?itemName=Sam-Cogan.ARMTTKExtensionXPlatform), which supports Windows and Linux build agents. I reccomend you switch to this version when possible. The old and new extensions will run side-by-side so you can transition easily. Updates for the Windows only extension will continue for a while, but it will be deprecated eventually. Questions and issue with the cross platform extension can be raised [here](https://github.com/sam-cogan/arm-ttk-extension-xplatform)**
+**A new Cross-Platform version of this extension is now availiable [here](https://marketplace.visualstudio.com/items?itemName=Sam-Cogan.ARMTTKExtensionXPlatform), which supports Windows and Linux build agents and this version is deprecated. I reccomend you switch to this version when possible. The old and new extensions will run side-by-side so you can transition easily. Questions and issue with the cross platform extension can be raised [here](https://github.com/sam-cogan/arm-ttk-extension-xplatform)**
 
 An Azure DevOps Extension for running Azure Resource Manager Template Tool Kit tests as part of your build or release pipeline.
 
