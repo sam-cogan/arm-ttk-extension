@@ -27,9 +27,9 @@ Describe "File Test" {
 
 describe "Single File Tests" {
     BeforeAll{
-    $testPath = "TestDrive:\"
-    $goodFile= "$here\testfiles\single-file\good-test.json"
-    $badFile = "$here\testfiles\single-file\bad-test.json" 
+        $testPath = "TestDrive:\"
+        $goodFile= "$here\testfiles\single-file\good-test.json"
+        $badFile = "$here\testfiles\single-file\bad-test.json" 
     }
 
     it "should generate no errors for a valid file"{
@@ -48,13 +48,13 @@ describe "Single File Tests" {
     it "generates a results file with the correct name"{
         $hash = Get-FileHash -Path $goodFile -Algorithm MD5
         Invoke-TTK -templatelocation $goodFile  -resultlocation "$testPath"
-        $(Get-ChildItem $testPath)[0].name |  should -be "$($(get-item $goodFile ).basename)-$($hash.Hash)-armttk.xml"
+        $(Get-ChildItem $testPath)[0].name |  should -belike "$($(get-item $goodFile ).basename)-*-armttk.xml"
     }
 
     it "should test only the named tests when 'Test' is provided"{
         Invoke-TTK -templatelocation $goodFile  -resultlocation $testPath -createResultsFiles $true -Test @("VM Images Should Use Latest Version")
         $hash = Get-FileHash -Path $goodFile -Algorithm MD5
-        [xml]$resultdoc = Get-Content "$testPath\$($(get-item $goodFile ).basename)-$($hash.Hash)-armttk.xml"
+        [xml]$resultdoc = Get-Content -Path "$testPath\$($(get-item $goodFile ).basename)-*-armttk.xml"
         $testcases  = @($resultdoc."test-results"."test-suite".results."test-suite".results."test-case")
         $testcases.Count | should -be 1 
         $testcases[0].name | should -be "VM Images Should Use Latest Version - good-test.json"
@@ -64,20 +64,23 @@ describe "Single File Tests" {
         $hash = Get-FileHash -Path $goodFile -Algorithm MD5
 
         Invoke-TTK -templatelocation $goodFile  -resultlocation $testPath -createResultsFiles $true 
-        [xml]$resultdoc = Get-Content "$testPath\$($(get-item $goodFile ).basename)-$($hash.Hash)-armttk.xml"
+        [xml]$resultdoc = Get-Content  -Path "$testPath\$($(get-item $goodFile ).basename)-*-armttk.xml"
         $testcases  = @($resultdoc."test-results"."test-suite".results."test-suite".results."test-case")
         $fullCount = $testcases.Count 
+        Get-ChildItem -Path $testPath -File | Remove-Item
 
         Invoke-TTK -templatelocation $goodFile  -resultlocation $testPath -createResultsFiles $true -Skip @("VM Images Should Use Latest Version")
-        [xml]$resultdoc = Get-Content "$testPath\$($(get-item $goodFile ).basename)-$($hash.Hash)-armttk.xml"
+        [xml]$resultdoc = Get-Content  -Path "$testPath\$($(get-item $goodFile ).basename)-*-armttk.xml"
         $testcases  = @($resultdoc."test-results"."test-suite".results."test-suite".results."test-case")
         $skipCount = $testcases.Count 
 
         $skipCount | should -be ($fullCount - 1)
-        $testcases.name | should -Not -Contain "VM Images Should Use Latest Version - good-test.json"
-        
+        $testcases.name | should -Not -Contain "VM Images Should Use Latest Version - good-test.json"        
     }
 
+    AfterEach {
+         Get-ChildItem -Path $testPath -File | Remove-Item
+    }
 }
 
 # describe "jsonc c test" {
@@ -96,12 +99,12 @@ describe "Single File Tests" {
 
 describe "multiple file tests"{
     BeforeAll{
-    $testPath = "TestDrive:\"
+        $testPath = "TestDrive:\"
     }
 
     it "generates a results file per template"{
         try{
-        Invoke-TTK -templatelocation "$here\testfiles\multiple-files"  -resultlocation "$testPath"
+            Invoke-TTK -templatelocation "$here\testfiles\multiple-files"  -resultlocation "$testPath"
         }
         catch{
             $_.Exception.Message | should -be "Failures found in test results"
@@ -110,49 +113,57 @@ describe "multiple file tests"{
             Get-ChildItem $testPath
             $(Get-ChildItem $testPath).count |  should -be 7
         }
-
     }
 
-
+    AfterEach {
+         Get-ChildItem -Path $testPath -File | Remove-Item
+    }
 }
 
 describe "folder with period"{
-       BeforeAll{
-    $testPath = "TestDrive:\"
+    BeforeAll{
+        $testPath = "TestDrive:\"
     }
-
 
     it "runs tests sucessfully"{
         Invoke-TTK -templatelocation "$here\testfiles\dot.folder"  -resultlocation $testPath 
         $(Get-ChildItem $testPath).count |  should -be 1
     }
+
+    AfterEach {
+         Get-ChildItem -Path $testPath -File | Remove-Item
+    }
 }
 
 describe "Message with HTML"{
-       BeforeAll{
-    $testPath = "TestDrive:\"
+    BeforeAll{
+        $testPath = "TestDrive:\"
     }
-
 
     it "creates export file"{
         try{
-        Invoke-TTK -templatelocation "$here\testfiles\encoding"  -resultlocation $testPath 
+            Invoke-TTK -templatelocation "$here\testfiles\encoding"  -resultlocation $testPath 
         }
         Catch{}
         $(Get-ChildItem $testPath).count |  should -be 1
     }
+
+    AfterEach {
+         Get-ChildItem -Path $testPath -File | Remove-Item
+    }
 }
 
 describe "Setting Main Template"{
-       BeforeAll{
-    $testPath = "TestDrive:\"
+    BeforeAll{
+        $testPath = "TestDrive:\"
     }
 
-
     it "has no errors when main template is set"{
-        
         Invoke-TTK -templatelocation "$here\testfiles\mainTemplate" -mainTemplates @("newStorageAccount.json")  -resultlocation $testPath | should -BeNullOrEmpty
-      
+    }
+
+    AfterEach {
+         Get-ChildItem -Path $testPath -File | Remove-Item
     }
 
     #  it "has errors when main template is not set"{
@@ -164,14 +175,12 @@ describe "Setting Main Template"{
 
 describe "bicep file tests"{
     BeforeAll{
-    $testPath = "TestDrive:\"
+        $testPath = "TestDrive:\"
     }
- write-host "$here"
-    it "has generated the correct result files"{
-
-        
-   try{
-        Invoke-TTK -templatelocation "$here\testfiles\bicep"  -resultlocation "$testPath"
+    write-host "$here"
+    it "has generated the correct result files"{        
+        try{
+            Invoke-TTK -templatelocation "$here\testfiles\bicep"  -resultlocation "$testPath"
         }
         catch{
             $_.Exception.Message | should -be "Failures found in test results"
@@ -180,28 +189,29 @@ describe "bicep file tests"{
             Get-ChildItem $testPath
             $(Get-ChildItem $testPath).count |  should -be 2
         }
-
     }
 
+    AfterEach {
+         Get-ChildItem -Path $testPath -File | Remove-Item
+    }
 }
 
 describe "Recursing"{
-       BeforeAll{
-    $testPath = "TestDrive:\"
+    BeforeAll{
+        $testPath = "TestDrive:\"
     }
-
 
     it "only runs test in top level folder"{
-        
         Invoke-TTK -templatelocation "$here\testfiles\recurse"  -resultlocation $testPath -recurse $false
         $(Get-ChildItem $testPath).count |  should -be 1
-      
     }
 
-     it "runs all tests"{
-        
+    it "runs all tests"{        
         Invoke-TTK -templatelocation "$here\testfiles\recurse"  -resultlocation $testPath -recurse $true
         $(Get-ChildItem $testPath).count |  should -be 2
-      
+    }
+
+    AfterEach {
+         Get-ChildItem -Path $testPath -File | Remove-Item
     }
 }
