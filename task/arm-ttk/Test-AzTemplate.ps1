@@ -153,6 +153,7 @@ Each test script has access to a set of well-known variables:
     $Pester)
 
     begin {
+        
         # First off, let's get all of the built-in test scripts.
         $testCaseSubdirectory = 'testcases'
         $myLocation =  $MyInvocation.MyCommand.ScriptBlock.File
@@ -384,7 +385,7 @@ Each test script has access to a set of well-known variables:
                                     }
                                 " NestedTemplate $($testOutputGroup.Name) [ Lines $InnerTemplateStartLine - $InnerTemplateEndLine ]"
                             } else {''}
-                        $displayGroup = if ($innerGroup) { $innerGroup } else { $GroupName }
+                        $displayGroup = if ($innerGroup) { $innerGroup } else { $dq }
                         $null= foreach ($testOut in $testOutputGroup.Group) {
                             if ($testOut -is [Exception] -or $testOut -is [Management.Automation.ErrorRecord]) {
                                 $testErrors.Add($testOut)
@@ -423,11 +424,13 @@ Each test script has access to a set of well-known variables:
                                             }
                                         }
 
-                                    if ($testOut.InnerTemplateLocation) {
+                                    if ($testOut.InnerTemplateLocation -and $location) {
                                         $location.Line += $testOut.InnerTemplateLocation.Line - 1
                                     }
 
-                                    $testOut | Add-Member NoteProperty Location $location -Force
+                                    if ($location) {
+                                        $testOut | Add-Member NoteProperty Location $location -Force
+                                    }
                                 }
                             }
                             elseif ($testOut -is [Management.Automation.WarningRecord]) {
@@ -564,12 +567,20 @@ Each test script has access to a set of well-known variables:
                     $templateFileName = $fileInfo.Name                    
                     $TemplateObject = $fileInfo.Object
                     $TemplateText = $fileInfo.Text
+                    # If the file had inner templates
                     if ($fileInfo.InnerTemplates) {
+                        # use the inner templates from just this file
                         $InnerTemplates          = $fileInfo.InnerTemplates
                         $InnerTemplatesText      = $fileInfo.InnerTemplatesText
                         $InnerTemplatesNames     = $fileInfo.InnerTemplatesNames
                         $innerTemplatesLocations = $fileInfo.InnerTemplatesLocations
-                    } else {
+                    }
+                    elseif ($fileInfo.Name -match '^(?>parameters|prereq|CreateUIDefinition)\.') {
+                        $InnerTemplates, $InnerTemplateText, $InnerTemplatesNames, $innerTemplatesLocations = $null                         
+                    }
+                    else 
+                    {
+                        # Otherwise, use the inner templates from the main file
                         $InnerTemplates = $mainInnerTemplates
                         $InnerTemplatesText = $mainInnerTemplatesText
                         $InnerTemplatesNames = $MainInnerTemplatesNames
@@ -654,7 +665,10 @@ Each test script has access to a set of well-known variables:
         if ($PSCmdlet.ParameterSetName -eq 'NearbyTemplate') {
             # attempt to find one in the current directory and it's subdirectories
             $possibleJsonFiles = @(Get-ChildItem -Filter *.json -Recurse |
-                Sort-Object Name -Descending )
+                Sort-Object Name -Descending ) <# | # (sort by name descending so that MainTemplate.json comes first).
+                Where-Object {
+                    'azureDeploy.json', 'mainTemplate.json' -contains $_.Name
+                }) #>
 
 
             # If more than one template was found, warn which one we'll be testing.
